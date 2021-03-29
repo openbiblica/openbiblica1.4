@@ -9,6 +9,7 @@ from odoo.http import request
 
 
 #test comment
+#comment kedua
 
 class WebsiteBiblicaAjax(http.Controller):
 
