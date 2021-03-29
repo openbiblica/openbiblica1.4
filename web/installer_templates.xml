@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="install_next" name="Install">
+        <t t-call="openbiblica.openbiblica_layout">
+            <div class="container o_install_next">
+                <h1 align="center">Installing <span t-esc="book_id.name"></span> > chapter <span t-esc="chapter"/>!</h1>
+                <form id="install_next" t-attf-action="/install/continue/usfm/#{slug(book_id)}" method="post" role="form">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <button id="install_next_button" style="display:none;" type="submit" class="btn btn-warning btn-sm mt8"/>
+                </form>
+            </div>
+        </t>
+    </template>
+
+    <template id="install_next_b" name="Install">
+        <t t-call="openbiblica.openbiblica_layout">
+            <div class="container o_install_next">
+                <h1 align="center">Installing <span t-esc="book_id.name"></span> > chapter <span t-esc="chapter"/>!</h1>
+                <form id="install_next" t-attf-action="/install/continue/usfm/#{slug(book_id)}/#{slug(book_id.bible_id)}" method="post" role="form">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <button id="install_next_button" style="display:none;" type="submit" class="btn btn-warning btn-sm mt8"/>
+                </form>
+            </div>
+        </t>
+    </template>
+
+    
+</odoo>

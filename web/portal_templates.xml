@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="website_menu_biblicas" model="website.menu">
+        <field name="name">Biblicas</field>
+        <field name="url">/bibles</field>
+        <field name="parent_id" ref="website.main_menu"/>
+        <field name="sequence" type="int">10</field>
+    </record>
+
+    <record id="website_menu_dictionaries" model="website.menu">
+        <field name="name">Dictionaries</field>
+        <field name="url">/dictionaries</field>
+        <field name="parent_id" ref="website.main_menu"/>
+        <field name="sequence" type="int">20</field>
+    </record>
+
+    <template id="assets_frontend" inherit_id="website.assets_frontend" name="Portal Assets">
+        <xpath expr="//script[last()]" position="after">
+            <script type="text/javascript" src="/openbiblica/static/src/js/website_openbiblica.js"/>
+            <script type="text/javascript" src="/openbiblica/static/src/js/transliterate.js"/>
+        </xpath>
+    </template>
+
+    <template id="portal_search" inherit_id="portal.frontend_layout">
+        <xpath expr="//header" position="inside">
+            <nav class="navbar navbar-expand-sm navbar-light bg-light">
+                <div class="container">
+                    <div class="o_editor divider navbar">
+                        <div id="source_menu" style="display:none; margin-right: 4px;">
+                            <div id="show_source_button" style="display:none;">
+                                <a href="#" name="show_source" id="show_source" class="btn btn-sm btn-primary">Show</a>
+                            </div>
+                            <div id="hide_source_button">
+                                <a href="#" name="hide_source" id="hide_source" class="btn btn-sm btn-warning">Hide</a>
+                            </div>
+                        </div>
+                        <div id="editor_menu" style="display:none; margin-right: 4px;">
+                            <div id="show_button">
+                                <a href="#" name="switch_show" id="show_button" class="btn btn-sm btn-danger">Show</a>
+                            </div>
+                            <div id="hide_button" style="display:none;">
+                                <a href="#" name="switch_hide" id="hide_button" class="btn btn-sm btn-primary">Hide</a>
+                            </div>
+                        </div>
+                        <div id="find_source" style="display:none; margin-right: 4px;"/>
+                        <div id="remove_source" style="display:none; margin-right: 4px;"/>
+                        <div id="translate_this" style="display:none; margin-right: 4px;"/>
+                    </div>
+                    <div>
+                        <tr t-call="openbiblica.search_bible"/>
+                        <tr t-call="openbiblica.search_dictionary"/>
+                    </div>
+                </div>
+            </nav>
+        </xpath>
+    </template>
+
+    <template id="search_bible" name="Bible Search">
+        <form t-attf-action="/search/" method="post" role="form" class="tag_text js_website_submit_form o_bible_search">
+            <div class="collapse navbar-collapse" id="search_menu_collapse">
+                <ul class="nav navbar-nav ml-auto text-right">
+                    <li><div style="margin-right: 4px;">
+                        <select name="langu_id" class="form-control">
+                            <option value="">Language...</option>
+                        </select>
+                    </div></li>
+                    <li><div style="margin-right: 4px;">
+                        <select name="bible_id" class="form-control">
+                            <option value="">Biblica...</option>
+                        </select>
+                    </div></li>
+                    <li><div style="margin-right: 4px;">
+                        <select name="book_id" class="form-control">
+                            <option value="">Book...</option>
+                        </select>
+                    </div></li>
+                    <li><div style="margin-right: 4px;">
+                        <select name="chapter_id" class="form-control">
+                            <option value="">Chapter...</option>
+                        </select>
+                    </div></li>
+                    <li><div style="margin-right: 4px;">
+                        <select name="verse_id" class="form-control">
+                            <option value="">Verse...</option>
+                        </select>
+                    </div></li>
+                    <li><div style="margin-right: 4px;">
+                        <input type="text" name="keyword" class="search-query oe_search_box form-control" placeholder="Search Bible..." t-att-value="keyword"/>
+                    </div></li>
+                    <li><div><button type="submit" class="btn btn-primary btn-sm">Search</button></div></li>
+                </ul>
+            </div>
+        </form>
+    </template>
+
+    <template id="search_dictionary" name="Dictionary Search">
+        <form t-attf-action="/search/dictionary" method="post" role="form" class="tag_text js_website_submit_form o_dictionary_search">
+            <div class="collapse navbar-collapse" id="search_menu_collapse">
+                <ul class="nav navbar-nav ml-auto text-right">
+                    <li><div style="margin-right: 4px;">
+                        <select name="s_lang_id" class="form-control" required="True">
+                            <option value="">Source Language...</option>
+                        </select>
+                    </div></li>
+                    <li><div style="margin-right: 4px;">
+                        <select name="t_lang_id" class="form-control" required="True">
+                            <option value="">Target Language...</option>
+                        </select>
+                    </div></li>
+                    <li><div style="margin-right: 4px;">
+                        <select name="dicti_id" class="form-control" required="True">
+                            <option value="">Dictionary...</option>
+                        </select>
+                    </div></li>
+                    <li><div style="margin-right: 4px;">
+                        <input type="text" name="dict_keyword" class="search-query oe_search_box form-control" placeholder="Search Dictionary..." t-att-value="keyword"/>
+                    </div></li>
+                    <li><div><button type="submit" class="btn btn-primary btn-sm">Search</button></div></li>
+                </ul>
+            </div>
+        </form>
+    </template>
+
+    <template id="portal_my_biblica" inherit_id="portal.portal_my_home" name="My Biblica Project">
+        <xpath expr="//div[@id='oe_structure_portal_my_home_2']" position="after">
+            <table class="table well well-lg" width="100%">
+                <tr>
+                    <td align="left"><h4><span t-field="user_id.name"/>'s Biblica Projects</h4></td>
+                    <td align="right"><a role="button" href="/create/bible" class="btn btn-sm btn-danger">Create New</a></td>
+                </tr>
+                <tr t-if="user_id.my_bible_ids" t-foreach="user_id.my_bible_ids" t-as="bible_id">
+                    <td>
+                        <a t-attf-href="/bible/#{slug(bible_id)}">
+                            <h4 t-esc="bible_id.name"/>
+                        </a>
+                        <a role="button" t-attf-href="/remove/bible/#{slug(bible_id)}" class="btn btn-sm btn-danger">Remove this project</a>
+                    </td>
+                </tr>
+            </table>
+            <table class="table well well-lg" width="100%">
+                <tr>
+                    <td align="left"><h4><span t-field="user_id.name"/>'s Dictionary Projects</h4></td>
+                    <td align="right"><a role="button" href="/create/dictionary" class="btn btn-sm btn-danger">Create New</a></td>
+                </tr>
+                <tr t-if="user_id.my_dictionary_ids" t-foreach="user_id.my_dictionary_ids" t-as="dict_id">
+                    <td>
+                        <a t-attf-href="/dictionary/#{slug(dict_id)}">
+                            <h4 t-esc="dict_id.name"/>
+                        </a>
+                        <a role="button" t-attf-href="/remove/dictionary/#{slug(dict_id)}" class="btn btn-sm btn-danger">Remove this project</a>
+                    </td>
+                </tr>
+            </table>
+        </xpath>
+    </template>
+
+    <template id="openbiblica_layout">
+        <t t-call="website.layout">
+            <div id="wrap">
+                <div class="container"></div>
+                <t t-raw="0"/>
+                <div class="oe_structure" id="oe_structure_website_openbiblica_layout_1"/>
+            </div>
+        </t>
+    </template>
+
+</odoo>

@@ -1,0 +1,17 @@
+INSTALLATION
+
+1. Install Odoo
+	https://bitnami.com/stack/odoo/installer
+
+2. Install Python Transliterate
+
+	LINUX
+	cd /opt/odoo
+	./use_odoo
+	pip install transliterate
+
+	WINDOWS
+	Use the shortcut in the Start menu under “Start -> Bitnami APPNAME Stack -> Application console” or “Use APPNAME Stack”.
+	pip install transliterate
+
+3. Install Openbiblica as odoo apps

@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="view_openbiblica_language_tree" model="ir.ui.view">
+            <field name="name">openbiblica.lang.tree</field>
+            <field name="model">openbiblica.lang</field>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <tree string="language">
+                    <field name="name"/>
+                    <field name="direction"/>
+                    <field name="allow_dictionary"/>
+                    <field name="dictionary_source_ids"/>
+                    <field name="dictionary_target_ids"/>
+                    <field name="bible_ids"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_openbiblica_language_form" model="ir.ui.view">
+            <field name="name">openbiblica.lang.form</field>
+            <field name="model">openbiblica.lang</field>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <form string="language">
+                    <sheet>
+                        <group col="4" colspan="4">
+                            <field name="name" required="1"/>
+                            <field name="direction"/>
+                            <field name="allow_dictionary"/>
+                            <field name="dictionary_source_ids"/>
+                            <field name="dictionary_target_ids"/>
+                            <field name="bible_ids"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_openbiblica_language_search" model="ir.ui.view">
+            <field name="name">openbiblica.lang.search</field>
+            <field name="model">openbiblica.lang</field>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <search string="language">
+                    <field name="name"/>
+                    <field name="direction"/>
+                    <field name="allow_dictionary"/>
+                    <field name="dictionary_source_ids"/>
+                    <field name="dictionary_target_ids"/>
+                    <field name="bible_ids"/>
+                    <newline/>
+                    <group expand="0" string="Group By...">
+                        <filter string="Direction" name="group_by_direction"
+                                domain="[]" context="{'group_by':'direction'}"/>
+                        <filter string="Allow Dictionary" name="group_by_allow_dictionary"
+                                domain="[]" context="{'group_by':'allow_dictionary'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="act_openbiblica_language_view">
+            <field name="name">Langs</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">openbiblica.lang</field>
+            <field name="binding_view_types">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_openbiblica_language_search"/>
+            <field name="domain">[]</field>
+            <field name="context">{}</field>
+        </record>
+
+        <record model="ir.actions.act_window.view" id="act_openbiblica_language_view_form">
+            <field name="act_window_id" ref="act_openbiblica_language_view"/>
+            <field name="sequence" eval="20"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_openbiblica_language_form"/>
+        </record>
+
+        <record model="ir.actions.act_window.view" id="act_openbiblica_language_view_tree">
+            <field name="act_window_id" ref="act_openbiblica_language_view"/>
+            <field name="sequence" eval="10"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_openbiblica_language_tree"/>
+        </record>
+
+        <record id="view_openbiblica_dictionary_tree" model="ir.ui.view">
+            <field name="name">openbiblica.dictionary.tree</field>
+            <field name="model">openbiblica.dictionary</field>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <tree string="dictionary">
+                    <field name="name"/>
+                    <field name="source_lang_id"/>
+                    <field name="target_lang_id"/>
+                    <field name="create_id"/>
+                    <field name="team_ids"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_openbiblica_dictionary_form" model="ir.ui.view">
+            <field name="name">openbiblica.dictionary.form</field>
+            <field name="model">openbiblica.dictionary</field>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <form string="dictionary">
+                    <sheet>
+                        <group col="4" colspan="4">
+                            <field name="name" required="1"/>
+                            <field name="source_lang_id"/>
+                            <field name="target_lang_id"/>
+                            <field name="create_id"/>
+                            <field name="team_ids"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_openbiblica_dictionary_search" model="ir.ui.view">
+            <field name="name">openbiblica.dictionary.search</field>
+            <field name="model">openbiblica.dictionary</field>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <search string="dictionary">
+                    <field name="name"/>
+                    <field name="source_lang_id"/>
+                    <field name="target_lang_id"/>
+                    <field name="team_ids"/>
+                    <field name="create_id"/>
+                    <newline/>
+                    <group expand="0" string="Group By...">
+                        <filter string="Source Language" name="group_by_source_lang_id"
+                                domain="[]" context="{'group_by':'source_lang_id'}"/>
+                        <filter string="Target Language" name="group_by_target_lang_id"
+                                domain="[]" context="{'group_by':'target_lang_id'}"/>
+                        <filter string="Creator" name="group_by_create_id"
+                                domain="[]" context="{'group_by':'create_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="act_openbiblica_dictionary_view">
+            <field name="name">Dictionaries</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">openbiblica.dictionary</field>
+            <field name="binding_view_types">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_openbiblica_dictionary_search"/>
+            <field name="domain">[]</field>
+            <field name="context">{}</field>
+        </record>
+
+        <record model="ir.actions.act_window.view" id="act_openbiblica_dictionary_view_form">
+            <field name="act_window_id" ref="act_openbiblica_dictionary_view"/>
+            <field name="sequence" eval="20"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_openbiblica_dictionary_form"/>
+        </record>
+
+        <record model="ir.actions.act_window.view" id="act_openbiblica_dictionary_view_tree">
+            <field name="act_window_id" ref="act_openbiblica_dictionary_view"/>
+            <field name="sequence" eval="10"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_openbiblica_dictionary_tree"/>
+        </record>
+
+        <record id="view_openbiblica_word_tree" model="ir.ui.view">
+            <field name="name">openbiblica.word.tree</field>
+            <field name="model">openbiblica.word</field>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <tree string="word">
+                    <field name="name"/>
+                    <field name="lang_id"/>
+                    <field name="meaning_ids"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_openbiblica_word_form" model="ir.ui.view">
+            <field name="name">openbiblica.word.form</field>
+            <field name="model">openbiblica.word</field>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <form string="word">
+                    <sheet>
+                        <group col="4" colspan="4">
+                            <field name="name" required="1"/>
+                            <field name="lang_id"/>
+                            <field name="meaning_ids"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_openbiblica_word_search" model="ir.ui.view">
+            <field name="name">openbiblica.word.search</field>
+            <field name="model">openbiblica.word</field>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <search string="word">
+                    <field name="name"/>
+                    <field name="lang_id"/>
+                    <newline/>
+                    <group expand="0" string="Group By...">
+                        <filter string="Language" name="group_by_lang_id"
+                                domain="[]" context="{'group_by':'lang_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="act_openbiblica_word_view">
+            <field name="name">Words</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">openbiblica.word</field>
+            <field name="binding_view_types">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_openbiblica_word_search"/>
+            <field name="domain">[]</field>
+            <field name="context">{}</field>
+        </record>
+
+        <record model="ir.actions.act_window.view" id="act_openbiblica_word_view_form">
+            <field name="act_window_id" ref="act_openbiblica_word_view"/>
+            <field name="sequence" eval="20"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_openbiblica_word_form"/>
+        </record>
+
+        <record model="ir.actions.act_window.view" id="act_openbiblica_word_view_tree">
+            <field name="act_window_id" ref="act_openbiblica_word_view"/>
+            <field name="sequence" eval="10"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_openbiblica_word_tree"/>
+        </record>
+
+        <record id="view_openbiblica_meaning_tree" model="ir.ui.view">
+            <field name="name">openbiblica.meaning.tree</field>
+            <field name="model">openbiblica.meaning</field>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <tree string="Meaning">
+                    <field name="word_id"/>
+                    <field name="name"/>
+                    <field name="create_id"/>
+                    <field name="dictionary_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_openbiblica_meaning_form" model="ir.ui.view">
+            <field name="name">openbiblica.meaning.form</field>
+            <field name="model">openbiblica.meaning</field>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <form string="Meaning">
+                    <sheet>
+                        <group col="4" colspan="4">
+                            <field name="word_id"/>
+                            <field name="name"/>
+                            <field name="create_id"/>
+                            <field name="dictionary_id"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_openbiblica_meaning_search" model="ir.ui.view">
+            <field name="name">openbiblica.meaning.search</field>
+            <field name="model">openbiblica.meaning</field>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <search string="Meaning">
+                    <field name="create_id"/>
+                    <field name="name"/>
+                    <newline/>
+                    <group expand="0" string="Group By...">
+                        <filter string="Target Language" name="group_by_lang_id"
+                                domain="[]" context="{'group_by':'lang_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="act_openbiblica_meaning_view">
+            <field name="name">meanings</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">openbiblica.meaning</field>
+            <field name="binding_view_types">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_openbiblica_meaning_search"/>
+            <field name="domain">[]</field>
+            <field name="context">{}</field>
+        </record>
+
+        <record model="ir.actions.act_window.view" id="act_openbiblica_meaning_view_form">
+            <field name="act_window_id" ref="act_openbiblica_meaning_view"/>
+            <field name="sequence" eval="20"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_openbiblica_meaning_form"/>
+        </record>
+
+        <record model="ir.actions.act_window.view" id="act_openbiblica_meaning_view_tree">
+            <field name="act_window_id" ref="act_openbiblica_meaning_view"/>
+            <field name="sequence" eval="10"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_openbiblica_meaning_tree"/>
+        </record>
+
+        <menuitem id="menu_openbiblica_dictionary"
+                  name="Dictionaries"
+                  action="act_openbiblica_word_view"
+                  sequence="4"/>
+
+        <menuitem id="menu_openbiblica_word"
+                  name="Words"
+                  parent="menu_openbiblica_dictionary"
+                  action="act_openbiblica_word_view"
+                  sequence="10"/>
+
+        <menuitem id="menu_openbiblica_meaning"
+                  name="Meanings"
+                  parent="menu_openbiblica_dictionary"
+                  action="act_openbiblica_meaning_view"
+                  sequence="20"/>
+
+        <menuitem id="menu_openbiblica_dictionary_settings"
+                  name="Dictionary Settings"
+                  parent="menu_openbiblica_dictionary"
+                  action="act_openbiblica_dictionary_view"
+                  sequence="30"/>
+
+        <menuitem id="menu_openbiblica_language_settings"
+                  name="Language Settings"
+                  parent="menu_openbiblica_dictionary"
+                  action="act_openbiblica_language_view"
+                  sequence="30"/>
+
+    </data>
+</odoo>

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="view_verse" name="Verse">
+        <t t-call="openbiblica.openbiblica_layout">
+            <div class="container">
+                <div class="o_source_menu" t-if="source_id"/>
+                <div class="o_edit_mode" t-if="verse_id.create_id == user_id"/>
+                <div class="o_translate_content" t-if="book_id.create_id.id != user_id.id">
+                    <input type="hidden" name="t_book_id" t-att-value="book_id.id"/>
+                    <input type="hidden" name="t_book_name" t-att-value="book_id.name"/>
+                </div>
+                <t t-call="openbiblica.view_ordinary_verse"/>
+                <div t-if="source_id" name="source_item">
+                    <t t-call="openbiblica.view_ordinary_verse">
+                        <t t-set="dict_id" t-value="book_id.dictionary_id.id"/>
+                        <t t-set="verse_id" t-value="source_id"/>
+                        <t t-set="chapter_id" t-value="source_id.chapter_id"/>
+                        <t t-set="book_id" t-value="source_id.book_id"/>
+                        <t t-set="bible_id" t-value="source_id.bible_id"/>
+                        <t t-set="word_ids" t-value="s_word_ids"/>
+                    </t>
+                </div>
+                <table t-if="verse_id.create_id == user_id" class="table" id="Selections" name='show_items' style="display:none;">
+                    <tr t-if="book_id.source_ids" name="source_item">
+                        <td>Source </td>
+                        <td>
+                            <form id="select_source_form" t-attf-action="/verse/#{slug(verse_id)}" method="post" role="form"
+                                  class="tag_text js_website_submit_form o_select_source">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <select name="select_source" t-attf-class="form-control">
+                                    <t t-foreach="book_id.source_ids" t-as="s">
+                                        <option t-att-value="s.id" t-att-selected="s.id == source_id.book_id.id">
+                                            <span t-esc="s.bible_id.name"/> > <span t-esc="s.name"/>
+                                        </option>
+                                    </t>
+                                </select>
+                                <button id="select_source_button" type="submit" style="display:none;"/>
+                            </form>
+                            <a t-attf-href="/copy/l/source/#{slug(verse_id)}/#{slug(source_id)}" class="btn btn-sm btn-warning">Copy</a>
+                            <a t-attf-href="/source/c/#{book_id.id}" class="btn btn-sm btn-primary">Add New Source</a>
+                        </td>
+                    </tr>
+                    <tr t-if="book_id.source_id">
+                        <td>Dictionary </td>
+                        <td>
+                            <p t-esc="book_id.dictionary_id.name" />
+                        </td>
+                    </tr>
+                </table>
+                <t t-call="openbiblica.verse_editor"/>
+                <t t-call="openbiblica.verse_navigation"/>
+            </div>
+        </t>
+    </template>
+
+    <template id="transliterate">
+        <div class="mt8 mb8 row">
+            <div class="col mb32" t-foreach="word_ids" t-as="word_id">
+                <a t-attf-href="/search/dictionary/#{dict_id}/keyword/#{word_id.name}" target="_blank">
+                    <span style="color: blue;" t-esc="word_id._transliterating()"/><br /></a>
+                <span t-esc="word_id.name"/><br />
+                <a t-attf-href="/search/bible/#{slug(bible_id)}/word/#{word_id.name}" target="_blank">
+                    ( <span style="color: red;" t-esc="word_id._frequency(bible_id.id)"/> )<br /></a>
+                <t t-foreach="word_id._dictionary_meanings(dict_id)" t-as="meaning_id">
+                    <p t-field="meaning_id.name"/>
+                </t>
+            </div>
+        </div>
+    </template>
+
+    <template id="view_ordinary_verse">
+        <table id="verses" class="table table-sm mt32 table-hover">
+            <tr id="source_table"/>
+            <tr>
+                <td>
+                    <h5 align="center" class="mb16">
+                        <a t-attf-href="/bible/#{slug(bible_id)}"><span t-esc="bible_id.name"/></a>
+                        <a t-attf-href="/book/#{slug(book_id)}"><span t-esc="book_id.name"/> </a>
+                        <a t-attf-href="/chapter/#{slug(chapter_id)}/#{s_lang}"><span t-esc="verse_id.chapter"/> : </a>
+                        <a t-attf-href="/verse/#{slug(verse_id)}/#{s_lang}"><span t-esc="verse_id.name"/></a>
+                    </h5>
+                    <h1 align="center" t-field="verse_id.content"/>
+                    <t t-if="not dict_id and bible_id.default_dictionary_id"  t-set="dict_id" t-value="bible_id.default_dictionary_id.id" />
+                    <t t-if="verse_id.lang_id.allow_dictionary" t-call="openbiblica.transliterate">
+                        <t t-set="word_ids" t-value="verse_id._interlinearing_verse()"/>
+                        <t t-set="dict_id" t-value="dict_id"/>
+                    </t>
+                </td>
+            </tr>
+        </table>
+    </template>
+    
+    <template id="verse_editor">
+        <div id="editor">
+            <form id="edit_verse" t-attf-action="/edit/verse" method="post" role="form"
+                  t-if="verse_id.create_id == user_id" class="tag_text js_website_submit_form">
+                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                <input type="hidden" name="verse_id" t-att-value="verse_id.id"/>
+                <p>
+                    <input class="col-md-2" type="text" name="chapter" t-att-value="verse_id.chapter" placeholder="Chapter"/>
+                     : <input class="col-md-2" type="text" name="verse" t-att-value="verse_id.name" placeholder="Verse"/>
+                </p>
+                <p>
+                    <textarea name="content" id="content" required="True" class="form-control load_editor">
+                        <t t-if="verse_id" t-esc="verse_id.content"/>
+                    </textarea>
+                </p>
+                <p>
+                    <button type="submit" class="btn btn-primary mt8 btn-lg">Save</button>
+                    <a role="button" t-attf-href="/remove/verse/#{slug(verse_id)}" class="btn btn-sm btn-danger mt8">Remove</a>
+                </p>
+            </form>
+        </div>
+    </template>
+
+    <template id="verse_navigation">
+        <div class="mt32 mb32 row" align="center">
+            <div class="col">
+                <form id="prev_form" t-attf-action="/verse/#{slug(prev_id)}" method="post" role="form"
+                      class="tag_text js_website_submit_form" t-if="prev_id">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <input type="hidden" name="select_source" t-att-value="source_id.book_id.id"/>
+                    <input type="hidden" name="select_lang" t-att-value="s_lang"/>
+                    <button id="prev_id_button" type="submit" class="btn btn-sm btn-primary">Prev</button>
+                </form>
+            </div>
+            <div><a href="javascript: window.history.back()" class="btn btn-sm btn-danger">Back</a></div>
+            <div class="col">
+                <form id="next_form" t-attf-action="/verse/#{slug(next_id)}" method="post" role="form"
+                      class="tag_text js_website_submit_form" t-if="next_id">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <input type="hidden" name="select_source" t-att-value="source_id.book_id.id"/>
+                    <input type="hidden" name="select_lang" t-att-value="s_lang"/>
+                    <button id="next_id_button" type="submit" class="btn btn-sm btn-primary">Next</button>
+                </form>
+            </div>
+        </div>
+    </template>
+
+</odoo>

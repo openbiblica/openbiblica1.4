@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="view_openbiblica_verse_tree" model="ir.ui.view">
+            <field name="name">openbiblica.verse.tree</field>
+            <field name="model">openbiblica.verse</field>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <tree string="Verse">
+                    <field name="sequence"/>
+                    <field name="name"/>
+                    <field name="content"/>
+                    <field name="chapter_id"/>
+                    <field name="book_id"/>
+                    <field name="bible_id"/>
+                    <field name="source_id"/>
+                    <field name="source_ids"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_openbiblica_verse_form" model="ir.ui.view">
+            <field name="name">openbiblica.verse.form</field>
+            <field name="model">openbiblica.verse</field>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <form string="Verse">
+                    <sheet>
+                        <group col="4" colspan="4">
+                            <field name="sequence"/>
+                            <field name="name" required="1"/>
+                            <field name="content"/>
+                            <field name="chapter_id"/>
+                            <field name="book_id"/>
+                            <field name="bible_id"/>
+                            <field name="source_id"/>
+                            <field name="source_ids"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_openbiblica_verse_search" model="ir.ui.view">
+            <field name="name">openbiblica.verse.search</field>
+            <field name="model">openbiblica.verse</field>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <search string="Verse">
+                    <field name="name"/>
+                    <field name="content"/>
+                    <field name="chapter_id"/>
+                    <field name="book_id"/>
+                    <field name="bible_id"/>
+                    <newline/>
+                    <group expand="0" string="Group By...">
+                        <filter string="Chapter" name="group_by_chapter_id"
+                                domain="[]" context="{'group_by':'chapter_id'}"/>
+                        <filter string="Book" name="group_by_book_id"
+                                domain="[]" context="{'group_by':'book_id'}"/>
+                        <filter string="Bible" name="group_by_bible_id"
+                                domain="[]" context="{'group_by':'bible_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="act_openbiblica_verse_view">
+            <field name="name">Chapters</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">openbiblica.verse</field>
+            <field name="binding_view_types">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_openbiblica_verse_search"/>
+            <field name="domain">[]</field>
+            <field name="context">{}</field>
+        </record>
+
+        <record model="ir.actions.act_window.view" id="act_openbiblica_verse_view_form">
+            <field name="act_window_id" ref="act_openbiblica_verse_view"/>
+            <field name="sequence" eval="20"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_openbiblica_verse_form"/>
+        </record>
+
+        <record model="ir.actions.act_window.view" id="act_openbiblica_verse_view_tree">
+            <field name="act_window_id" ref="act_openbiblica_verse_view"/>
+            <field name="sequence" eval="10"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_openbiblica_verse_tree"/>
+        </record>
+
+        <record id="view_openbiblica_chapter_tree" model="ir.ui.view">
+            <field name="name">openbiblica.chapter.tree</field>
+            <field name="model">openbiblica.chapter</field>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <tree string="Chapter">
+                    <field name="sequence"/>
+                    <field name="name"/>
+                    <field name="book_id"/>
+                    <field name="bible_id"/>
+                    <field name="verse_ids"/>
+                    <field name="source_id"/>
+                    <field name="source_ids"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_openbiblica_chapter_form" model="ir.ui.view">
+            <field name="name">openbiblica.chapter.form</field>
+            <field name="model">openbiblica.chapter</field>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <form string="Chapter">
+                    <sheet>
+                        <group col="4" colspan="4">
+                            <field name="sequence"/>
+                            <field name="name" required="1"/>
+                            <field name="book_id"/>
+                            <field name="bible_id"/>
+                            <field name="verse_ids"/>
+                            <field name="source_id"/>
+                            <field name="source_ids"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_openbiblica_chapter_search" model="ir.ui.view">
+            <field name="name">openbiblica.chapter.search</field>
+            <field name="model">openbiblica.chapter</field>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <search string="Chapter">
+                    <field name="name"/>
+                    <field name="book_id"/>
+                    <field name="bible_id"/>
+                    <newline/>
+                    <group expand="0" string="Group By...">
+                        <filter string="Book" name="group_by_book_id"
+                                domain="[]" context="{'group_by':'book_id'}"/>
+                        <filter string="Bible" name="group_by_bible_id"
+                                domain="[]" context="{'group_by':'bible_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="act_openbiblica_chapter_view">
+            <field name="name">Chapters</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">openbiblica.chapter</field>
+            <field name="binding_view_types">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_openbiblica_chapter_search"/>
+            <field name="domain">[]</field>
+            <field name="context">{}</field>
+        </record>
+
+        <record model="ir.actions.act_window.view" id="act_openbiblica_chapter_view_form">
+            <field name="act_window_id" ref="act_openbiblica_chapter_view"/>
+            <field name="sequence" eval="20"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_openbiblica_chapter_form"/>
+        </record>
+
+        <record model="ir.actions.act_window.view" id="act_openbiblica_chapter_view_tree">
+            <field name="act_window_id" ref="act_openbiblica_chapter_view"/>
+            <field name="sequence" eval="10"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_openbiblica_chapter_tree"/>
+        </record>
+
+        <record id="view_openbiblica_book_tree" model="ir.ui.view">
+            <field name="name">openbiblica.book.tree</field>
+            <field name="model">openbiblica.book</field>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <tree string="Book">
+                    <field name="sequence"/>
+                    <field name="name"/>
+                    <field name="description"/>
+                    <field name="title_id"/>
+                    <field name="title_ide"/>
+                    <field name="title"/>
+                    <field name="title_short"/>
+                    <field name="title_abrv"/>
+                    <field name="create_id"/>
+                    <field name="team_ids"/>
+                    <field name="bible_id"/>
+                    <field name="chapter_ids"/>
+                    <field name="source_id"/>
+                    <field name="source_ids"/>
+                    <field name="dictionary_id"/>
+                    <field name="files"/>
+                    <field name="rest"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_openbiblica_book_form" model="ir.ui.view">
+            <field name="name">openbiblica.book.form</field>
+            <field name="model">openbiblica.book</field>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <form string="Book">
+<!--
+                    <header groups="base.group_user">
+                        <button name="install_usfm" type="object" string="Install USFM" class="oe_highlight"/>
+                    </header>
+-->
+                    <sheet>
+                        <group col="4" colspan="4">
+                            <field name="sequence"/>
+                            <field name="name" required="1"/>
+                            <field name="description"/>
+                            <field name="title_id"/>
+                            <field name="title_ide"/>
+                            <field name="title"/>
+                            <field name="title_short"/>
+                            <field name="title_abrv"/>
+                            <field name="create_id"/>
+                            <field name="team_ids"/>
+                            <field name="bible_id"/>
+                            <field name="chapter_ids"/>
+                            <field name="source_id"/>
+                            <field name="source_ids"/>
+                            <field name="dictionary_id"/>
+                            <field name="files"/>
+                            <field name="rest"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_openbiblica_book_search" model="ir.ui.view">
+            <field name="name">openbiblica.book.search</field>
+            <field name="model">openbiblica.book</field>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <search string="Book">
+                    <field name="name"/>
+                    <field name="lang_id"/>
+                    <field name="create_id"/>
+                    <newline/>
+                    <group expand="0" string="Group By...">
+                        <filter string="Language" name="group_by_lang_id"
+                                domain="[]" context="{'group_by':'lang_id'}"/>
+                        <filter string="Bible" name="group_by_bible_id"
+                                domain="[]" context="{'group_by':'bible_id'}"/>
+                        <filter string="Creator" name="group_by_create_id"
+                                domain="[]" context="{'group_by':'create_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="act_openbiblica_book_view">
+            <field name="name">Books</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">openbiblica.book</field>
+            <field name="binding_view_types">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_openbiblica_book_search"/>
+            <field name="domain">[]</field>
+            <field name="context">{}</field>
+        </record>
+
+        <record model="ir.actions.act_window.view" id="act_openbiblica_book_view_form">
+            <field name="act_window_id" ref="act_openbiblica_book_view"/>
+            <field name="sequence" eval="20"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_openbiblica_book_form"/>
+        </record>
+
+        <record model="ir.actions.act_window.view" id="act_openbiblica_book_view_tree">
+            <field name="act_window_id" ref="act_openbiblica_book_view"/>
+            <field name="sequence" eval="10"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_openbiblica_book_tree"/>
+        </record>
+
+        <record id="view_openbiblica_bible_tree" model="ir.ui.view">
+            <field name="name">openbiblica.bible.tree</field>
+            <field name="model">openbiblica.bible</field>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <tree string="Bible">
+                    <field name="name"/>
+                    <field name="description"/>
+                    <field name="lang_id"/>
+                    <field name="create_id"/>
+                    <field name="team_ids"/>
+                    <field name="source_id"/>
+                    <field name="source_ids"/>
+                    <field name="book_ids"/>
+                    <field name="default_dictionary_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_openbiblica_bible_form" model="ir.ui.view">
+            <field name="name">openbiblica.bible.form</field>
+            <field name="model">openbiblica.bible</field>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <form string="Bible">
+                    <sheet>
+                        <group col="4" colspan="4">
+                            <field name="name" required="1"/>
+                            <field name="description"/>
+                            <field name="lang_id"/>
+                            <field name="create_id"/>
+                            <field name="team_ids"/>
+                            <field name="source_id"/>
+                            <field name="source_ids"/>
+                            <field name="book_ids"/>
+                            <field name="default_dictionary_id"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_openbiblica_bible_search" model="ir.ui.view">
+            <field name="name">openbiblica.bible.search</field>
+            <field name="model">openbiblica.bible</field>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <search string="Bible">
+                    <field name="name"/>
+                    <field name="lang_id"/>
+                    <field name="create_id"/>
+                    <field name="team_ids"/>
+                    <field name="source_id"/>
+                    <newline/>
+                    <group expand="0" string="Group By...">
+                        <filter string="Language" name="group_by_lang_id"
+                                domain="[]" context="{'group_by':'lang_id'}"/>
+                        <filter string="Creator" name="group_by_create_id"
+                                domain="[]" context="{'group_by':'create_id'}"/>
+                        <filter string="Source" name="group_by_source_id"
+                                domain="[]" context="{'group_by':'source_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="act_openbiblica_bible_view">
+            <field name="name">Bibles</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">openbiblica.bible</field>
+            <field name="binding_view_types">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_openbiblica_bible_search"/>
+            <field name="domain">[]</field>
+            <field name="context">{}</field>
+        </record>
+
+        <record model="ir.actions.act_window.view" id="act_openbiblica_bible_view_form">
+            <field name="act_window_id" ref="act_openbiblica_bible_view"/>
+            <field name="sequence" eval="20"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_openbiblica_bible_form"/>
+        </record>
+
+        <record model="ir.actions.act_window.view" id="act_openbiblica_bible_view_tree">
+            <field name="act_window_id" ref="act_openbiblica_bible_view"/>
+            <field name="sequence" eval="10"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_openbiblica_bible_tree"/>
+        </record>
+
+        <menuitem id="menu_openbiblica_bible"
+                  name="Bibles"
+                  action="act_openbiblica_bible_view"
+                  sequence="3"/>
+
+        <menuitem id="menu_openbiblica_book"
+                  name="Books"
+                  parent="menu_openbiblica_bible"
+                  action="act_openbiblica_book_view"
+                  sequence="10"/>
+
+        <menuitem id="menu_openbiblica_chapter"
+                  name="Chapters"
+                  parent="menu_openbiblica_bible"
+                  action="act_openbiblica_chapter_view"
+                  sequence="20"/>
+
+        <menuitem id="menu_openbiblica_verse"
+                  name="Verses"
+                  parent="menu_openbiblica_bible"
+                  action="act_openbiblica_verse_view"
+                  sequence="30"/>
+    </data>
+</odoo>

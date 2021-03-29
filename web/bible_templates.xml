@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="biblicas" name="Biblicas">
+        <t t-call="openbiblica.openbiblica_layout">
+            <div class="container">
+                <table class="table table-sm o_main_table">
+                    <tr>
+                        <th><h4>Bible Name</h4></th>
+                        <th><h4>Language</h4></th>
+                        <th><h4>Author</h4></th>
+                    </tr>
+                    <tr t-foreach="biblicas" t-as="biblica">
+                        <td>
+                            <a role="button" class="btn btn-sm btn-link"
+                                       t-attf-href="/bible/#{slug(biblica)}"><h5 t-esc="biblica.name"/></a>
+                        </td>
+                        <td><h5 t-esc="biblica.lang_id.name"/></td>
+                        <td><h5 t-esc="biblica.create_id.name"/></td>
+                    </tr>
+                    <tr>
+                        <td align="left">
+                            <a role="button" href="/create/bible" class="btn btn-sm btn-danger">Create New</a></td>
+                        <td/>
+                        <td/>
+                    </tr>
+                </table>
+                <div class="mt32 mb32" align="center">
+                    <span><a href="javascript: window.history.back()" class="btn btn-sm btn-danger">Back</a></span>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="bible_editor" name="Bible Editor">
+        <t t-call="openbiblica.openbiblica_layout">
+            <div class="container">
+                <h3>Bible Project Form</h3>
+                <form t-attf-action="/save/bible" method="post" role="form" class="tag_text js_website_submit_form o_editor">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <input t-if="bible_id" type="hidden" name="bible_id" t-att-value="bible_id.id"/>
+                    <div class="form-group row">
+                        <label class="col-md-2 col-form-label" for="name">Bible Title*</label>
+                        <div class="col-md-8">
+                            <input type="text" name="name" required="True" class="form-control"
+                                   t-att-value="bible_id.name if bible_id else ''" placeholder="e.g. New OpenBiblica Version"/>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-lg-2 col-form-label mb16" for="description">Bible Description</label>
+                        <div class="col-lg-8 mb16">
+                            <textarea name="description" id="description" style="min-height: 120px" class="form-control">
+                                <t t-if="bible_id" t-esc="bible_id.description"/>
+                            </textarea>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-lg-2 col-form-label mb16" for="lang_id">Project Language</label>
+                        <div class="col-md-8">
+                            <select id="lang_id" name="lang_id" t-attf-class="form-control">
+                                <option value="">Select...</option>
+                                <option t-foreach="langs" t-as="lg" t-att-value="lg.id"
+                                        t-att-selected="lg.id == bible_id.lang_id.id if bible_id else lg.id == ''">
+                                    <t t-esc="lg.name"/>
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-lg-2 col-form-label mb16" for="lang_button"/>
+                        <div class="col-md-8">
+                            <a href="#" name="switch_show" class="btn btn-sm btn-danger">My language is not in the list</a>
+                        </div>
+                    </div>
+                    <div name='show_items' style="display:none;" class="form-group row">
+                        <label class="col-lg-2 col-form-label mb16" for="lang_id">New Language Name*</label>
+                        <div class="col-md-8">
+                            <input type="text" name="lang_name" class="form-control" placeholder="e.g. Bahasa Indonesia"/>
+                        </div>
+                    </div>
+                    <div name='show_items' style="display:none;" class="form-group row">
+                        <label class="col-lg-2 col-form-label mb16" for="lang_id">Orientation</label>
+                        <div class="col-md-8">
+                            <select id="direction" name="direction" t-attf-class="form-control">
+                                <option value="ltr">Left-to-Right</option>
+                                <option value="rtl">Right-to-Left</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mt32 mb32" align="center">
+                        <span><a href="javascript: window.history.back()" class="btn btn-sm btn-danger">Back</a></span>
+                        <button type="submit" class="btn btn-primary btn-sm">Save</button>
+                    </div>
+                </form>
+            </div>
+        </t>
+    </template>
+
+    <template id="view_biblica" name="Biblica">
+        <t t-call="openbiblica.openbiblica_layout">
+            <div class="container">
+                <div class="o_edit_mode" t-if="bible_id.create_id == user_id"/>
+                <table class="table table-sm" id="biblica">
+                    <tr id="bible">
+                        <td width="20%"><h1>Bible Name</h1></td>
+                        <td name='source_biblica'/>
+                        <td>
+                            <h1 t-esc="bible_id.name"/>
+                            <t t-if="bible_id.create_id == user_id" name='show_items' style="display:none;">
+                                <span name='show_items' style="display:none;" t-if="bible_id.create_id == user_id">
+                                    <form t-attf-action="/edit/bible" method="post" role="form" class="tag_text js_website_submit_form">
+                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                        <input type="hidden" name="bible_id" t-att-value="bible_id.id"/>
+                                        <button type="submit" class="btn btn-warning btn-sm">Edit Project Title</button>
+                                        <a role="button" t-attf-href="/remove/bible/#{slug(bible_id)}" class="btn btn-sm btn-danger">Remove this project</a>
+                                    </form>
+                                </span>
+                            </t>
+                        </td>
+                    </tr>
+                    <tr id="description">
+                        <td>Description</td>
+                        <td name='source_description'/>
+                        <td><span t-field="bible_id.description"/></td>
+                    </tr>
+                    <tr id="author">
+                        <td>Author</td>
+                        <td name='source_author'/>
+                        <td><span t-field="bible_id.create_id"/></td>
+                    </tr>
+                    <tr id="lang">
+                        <td>Language</td>
+                        <td name='source_lang'/>
+                        <td><span t-field="bible_id.lang_id"/></td>
+                    </tr>
+                    <tr id="install" t-if="bible_id.create_id == user_id" groups="website.group_website_publisher">
+                        <td>Import from USFM</td>
+                        <td name='source_usfm'/>
+                        <td>
+                            <a role="button" t-attf-href="/install/b/usfm/#{slug(bible_id)}" class="btn btn-sm btn-danger">Install USFM</a>
+                        </td>
+                    </tr>
+                    <tr id="default_dictionary " t-if="bible_id.create_id == user_id and bible_id.lang_id.allow_dictionary" groups="website.group_website_publisher">
+                        <td>Default Dictionary</td>
+                        <td name='default_dictionary'/>
+                        <td>
+                            <a t-attf-href="/dictionary/#{slug(bible_id.default_dictionary_id)}" t-if="bible_id.default_dictionary_id" target="_blank">
+                                <span t-esc="bible_id.default_dictionary_id.name" />
+                            </a>
+                            <t t-call="openbiblica.default_dictionary" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Books</td>
+                        <td name='source_books'/>
+                        <td>
+                            <form t-if='bible_id.create_id == user_id' t-attf-action="/add/book"
+                                  method="post" role="form" class="tag_text js_website_submit_form" enctype="multipart/form-data">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <input type="hidden" name="bible_id" t-att-value="bible_id.id"/>
+                                <input type="text" name="name" required="True" class="mt4 mb4" placeholder="Book Name"/>
+                                <button type="submit" class="btn btn-primary btn-sm">Add New</button>
+                            </form>
+                            <t t-foreach="bible_id.book_ids" t-as="book">
+                                <a role="button" class="btn btn-sm btn-link"
+                                   t-attf-href="/book/#{slug(book)}"><h5 t-esc="book.name"/></a><br/>
+                                <div class="mb32" t-if="bible_id.create_id == user_id" name='show_items' style="display:none;">
+                                    <div class="mb8">
+                                        <a role="button" t-attf-href="/up/book/#{slug(book)}" class="btn btn-primary">Up</a>
+                                        <a role="button" t-attf-href="/down/book/#{slug(book)}" class="btn btn-primary">Down</a>
+                                    </div>
+                                    <div class="mb8">
+                                        <a role="button" t-attf-href="/edit/book/#{slug(book)}" class="btn btn-sm btn-warning">Edit</a>
+                                        <a role="button" t-attf-href="/remove/book/#{slug(book)}" class="btn btn-sm btn-danger">Remove</a>
+                                    </div>
+                                </div>
+                            </t>
+                        </td>
+                    </tr>
+                </table>
+                <div class="mt32 mb32" align="center">
+                    <span><a href="javascript: window.history.back()" class="btn btn-sm btn-danger">Back</a></span>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="cleaning">
+        <t t-call="openbiblica.openbiblica_layout">
+            <div class="container o_cleaning">
+                <input type="hidden" name="chapter_id" t-att-value="chapter_id"/>
+                <h1 align="center">Please wait, this could take some time.</h1>
+                <h2 align="center" id="report"/>
+                <h2 align="center">It will automatic redirect when done.</h2>
+                <form id="install_next" t-attf-action="/install/usfm/#{slug(book_id)}" method="post" role="form">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <button id="install_next_button" style="display:none;" type="submit" class="btn btn-warning btn-sm mt8"/>
+                </form>
+            </div>
+        </t>
+    </template>
+
+    <template id="remove">
+        <t t-call="openbiblica.openbiblica_layout">
+            <div class="container o_remove">
+                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                <input type="hidden" name="bible_id" t-att-value="bible_id"/>
+                <input type="hidden" name="chapter_id" t-att-value="chapter_id"/>
+                <h1 align="center">Please wait, this could take some time.</h1>
+                <h2 align="center" t-if="bible_id">You can take a coffee or snack.</h2>
+                <h2 align="center" id="report"/>
+                <h2 align="center">It will automatic redirect when done.</h2>
+            </div>
+        </t>
+    </template>
+    
+    <template id="sourcing">
+        <t t-call="openbiblica.openbiblica_layout">
+            <div class="container o_sourcing_b">
+                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                <input type="hidden" name="bible_id" t-att-value="bible_id"/>
+                <input type="hidden" name="book_id" t-att-value="book_id"/>
+                <input type="hidden" name="s_chapter_id" t-att-value="s_chapter_id"/>
+                <h1 align="center">Please wait, this could take some time.</h1>
+                <h2 align="center" t-if="bible_id">You can take a coffee or snack.</h2>
+                <h2 align="center" id="report"/>
+                <h2 align="center">It will automatic redirect when done.</h2>
+            </div>
+        </t>
+    </template>
+
+    <template id="view_search" name="Search Result">
+        <t t-call="openbiblica.openbiblica_layout">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12 pt16 pb16" style="text-align: center;">
+                        <h4><font style="font-size: 62px;">
+                            <p t-esc='keyword'/>
+                            in Bible
+                        </font></h4>
+                    </div>
+                </div>
+                <table class="table table-striped">
+                    <tr t-if="len(results)">
+                        <td colspan="2">
+                            <span t-esc='len(results)'/> from <span t-esc='total'/> match found
+                            <t t-call="website.pager" >
+                                <t t-set="classname">float-right</t>
+                            </t>
+                        </td>
+                    </tr>
+                    <tr t-if="len(results)" t-foreach="results" t-as="result">
+                        <td>
+                            <a t-attf-href="/verse/#{(result.id)}/#{s_lang}">
+                                <h5><span t-field="result.book_id" /> <span t-field="result.chapter_id" /> : <span t-field="result.name" /></h5>
+                            </a>
+                        </td>
+                        <td>
+                            <h5 t-field="result.content" />
+                            <span t-if="result.lang_id.allow_dictionary" t-esc="result._transliterating()" style="color: blue;"/>
+                        </td>
+                    </tr>
+                    <tr t-if="len(results)">
+                        <td colspan="2">
+                            <t t-call="website.pager" >
+                                <t t-set="classname">float-right</t>
+                            </t>
+                        </td>
+                    </tr>
+                    <tr t-else=""><td align="center">
+                        <h4>Sorry, we can't find what you are looking for.<br/>
+                        Please search again.</h4></td></tr>
+                </table>
+            </div>
+        </t>
+    </template>
+
+    <template id="default_dictionary" name="Select Default Dictionary">
+        <form t-attf-action="/select/default/dict/#{slug(bible_id)}" method="post" role="form" class="o_select_dictionary">
+            <div>
+                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                <input type="hidden" name="source_lang_id" t-att-value="bible_id.lang_id.id"/>
+                <ul class="nav navbar-nav ml-auto">
+                    <li><div style="margin-right: 4px;">
+                        <select name="target_lang_id" class="form-control" required="True">
+                            <option value="">Target Language...</option>
+                        </select>
+                    </div></li>
+                    <li><div style="margin-right: 4px;">
+                        <select name="dictionary_id" class="form-control" required="True">
+                            <option value="">Dictionary...</option>
+                        </select>
+                    </div></li>
+                    <li><div><button type="submit" class="btn btn-primary btn-sm">Select</button></div></li>
+                </ul>
+            </div>
+        </form>
+    </template>
+
+
+
+</odoo>

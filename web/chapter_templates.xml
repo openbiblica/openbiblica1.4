@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="view_chapter" name="Chapter">
+        <t t-call="openbiblica.openbiblica_layout">
+            <div class="container o_editor">
+                <div class="o_source_menu" t-if="source_id"/>
+                <div class="o_edit_mode" t-if="bible_id.create_id == user_id"/>
+                <div class="o_translate_content" t-if="book_id.create_id.id != user_id.id">
+                    <input type="hidden" name="t_book_id" t-att-value="book_id.id"/>
+                    <input type="hidden" name="t_content_name" t-att-value="book_id.name"/>
+                </div>
+                <form id="select_source_form" t-attf-action="/chapter/#{slug(chapter_id)}/#{page}" method="post" role="form"
+                      class="tag_text js_website_submit_form o_select_source">
+                    <table class="table">
+                        <tr style="display:none">
+                            <td><input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/></td>
+                        </tr>
+                        <tr t-if="book_id.source_ids" name="source_item">
+                            <td>Source </td>
+                            <td>
+                                <select name="select_source" t-attf-class="form-control">
+                                    <t t-foreach="book_id.source_ids" t-as="s">
+                                        <option t-att-value="s.id" t-att-selected="s.id == source_id.book_id.id">
+                                            <span t-esc="s.bible_id.name"/> > <span t-esc="s.name"/>
+                                        </option>
+                                    </t>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr name="lang_item" t-if="chapter_id.is_interlinear or source_id.is_interlinear">
+                            <td>Dictionary </td>
+                            <td>
+                                <select name="select_lang" t-attf-class="form-control" id="select_lang">
+                                    <t t-foreach="langs" t-as="ln">
+                                        <option t-att-value="ln.id" t-att-selected="ln.id == s_lang">
+                                            <span t-esc="ln.name"/>
+                                        </option>
+                                    </t>
+                                </select>
+                            </td>
+                        </tr>
+                    </table>
+                    <button id="select_source_button" type="submit" style="display:none;"/>
+                </form>
+                <table id="chapter" class="table table-sm table-responsive table-hover">
+                    <tr id='source' t-if="source_id" align="center" name="source_item">
+                        <th name="source_header">Source</th>
+                        <th>Biblica</th>
+                    </tr>
+                    <tr id="bible">
+                        <td name="source_item" align="center" t-if="source_id">
+                            <a t-attf-href="/bible/#{slug(source_id.bible_id)}"><h5 t-esc="source_id.bible_id.name"/></a>
+                            <a t-attf-href="/book/#{slug(source_id.book_id)}"><h4 t-esc="source_id.book_id.name"/></a>
+                            <div id="copy_chapter" t-if="chapter_id.create_id == user_id" class="mt8 mb8">
+                                <a t-attf-href="/copy/p/source/#{slug(chapter_id)}/#{slug(source_id)}" class="btn btn-sm btn-warning">Copy</a>
+                            </div>
+                        </td>
+                        <td align="center">
+                            <a t-attf-href="/bible/#{slug(bible_id)}"><h5 t-esc="bible_id.name"/></a>
+                            <a t-attf-href="/book/#{slug(book_id)}"><h4 t-esc="book_id.name"/></a>
+                            <div t-if="chapter_id.create_id == user_id">
+                                <a t-attf-href="/source/c/#{book_id.id}" class="btn btn-sm btn-primary">Add New Source</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr id="chapter">
+                        <td name="source_item" align="center" t-if="source_id">
+                            <a t-attf-href="/chapter/#{slug(source_id)}/#{s_lang}"><h1>Chapter <span t-esc="source_id.name"/></h1></a>
+                        </td>
+                        <td align="center">
+                            <h1>Chapter <span t-esc="chapter_id.name" name='hide_items'/>
+                            <span t-if="chapter_id.create_id == user_id" class="mt16 mb32" name='show_items' style="display:none;">
+                                <form id="edit_chapter" t-attf-action="/edit/chapter" method="post" role="form" class="tag_text js_website_submit_form">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <input type="hidden" name="chapter_id" t-att-value="chapter_id.id"/>
+                                    <input type="text" name="name" t-att-value="chapter_id.name" required="True"/>
+                                    <button type="submit" class="btn btn-warning btn-sm mt8">Edit</button>
+                                    <a role="button" t-attf-href="/remove/chapter/#{slug(chapter_id)}" class="btn btn-sm btn-danger mt8">Remove</a>
+                                </form>
+                            </span>
+                            </h1>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td t-if="source_id"/>
+                        <td>
+                            <t t-call="openbiblica.verse_pager" >
+                                <t t-set="classname">float-right</t>
+                            </t>
+                        </td>
+                    </tr>
+                    <tr t-foreach="verse_results" t-as="main_verse">
+                        <t t-set="l" t-value="main_verse.sequence - 1"/>
+                        <td name="source_item" width="50%" style="padding: 15px;" t-if="source_id">
+                            <h5 t-if="len(source_id.verse_ids) > l">
+                                <a t-attf-href="/verse/#{slug(source_id.verse_ids[l])}">
+                                        <span t-if="source_id.verse_ids[l].chapter" t-field="source_id.verse_ids[l].chapter"/>
+                                        <span t-if="source_id.verse_ids[l].name"> : <t t-esc="source_id.verse_ids[l].name"/></span>
+                                </a>
+                                <span t-field="source_id.verse_ids[l].content"/><br />
+                                <span t-if="source_id.lang_id.allow_dictionary" t-esc="source_id.verse_ids[l]._transliterating()" style="color: blue;"/>
+                            </h5>
+                        </td>
+                        <td name='hide_items' style="padding: 15px;">
+                            <h5 t-if="len(chapter_id.verse_ids) > l">
+                                <a t-attf-href="/verse/#{slug(chapter_id.verse_ids[l])}">
+                                        <span t-if="chapter_id.verse_ids[l].chapter" t-field="chapter_id.verse_ids[l].chapter"/>
+                                        <span t-if="chapter_id.verse_ids[l].name"> : <t t-esc="chapter_id.verse_ids[l].name"/></span>
+                                </a>
+                                <span t-field="chapter_id.verse_ids[l].content"/><br />
+                                <span t-if="chapter_id.lang_id.allow_dictionary" t-esc="chapter_id.verse_ids[l]._transliterating()" style="color: blue;"/>
+                            </h5>
+                        </td>
+                        <td name='show_items' style="display:none;">
+                            <t t-call="openbiblica.edit_verse_form" t-if="len(chapter_id.verse_ids) > l">
+                                <t t-set="verse" t-value="chapter_id.verse_ids[l]"/>
+                            </t>
+                        </td>
+                    </tr>
+                    <tr t-if="chapter_id.create_id == user_id" name='show_items' style="display:none;">
+                        <td name="source_item" t-if="source_id"/>
+                        <td>
+                            <t t-call="openbiblica.add_verse_form"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td t-if="source_id"/>
+                        <td>
+                            <t t-call="openbiblica.verse_pager" >
+                                <t t-set="classname">float-right</t>
+                            </t>
+                        </td>
+                    </tr>
+                </table>
+                <div class="mt32 mb32 row" align="center">
+                    <div class="col">
+                        <form id="prev_form" t-attf-action="/chapter/#{slug(prev_id)}" method="post" role="form"
+                              class="tag_text js_website_submit_form" t-if="prev_id">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <input type="hidden" name="select_source" t-att-value="source_id.book_id.id"/>
+                            <input type="hidden" name="select_lang" t-att-value="s_lang"/>
+                            <button id="prev_id_button" type="submit" class="btn btn-sm btn-primary">Prev Chapter</button>
+                        </form>
+                    </div>
+                    <div><a href="javascript: window.history.back()" class="btn btn-sm btn-danger">Back</a></div>
+                    <div class="col">
+                        <form id="next_form" t-attf-action="/chapter/#{slug(next_id)}" method="post" role="form"
+                              class="tag_text js_website_submit_form" t-if="next_id">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <input type="hidden" name="select_source" t-att-value="source_id.book_id.id"/>
+                            <input type="hidden" name="select_lang" t-att-value="s_lang"/>
+                            <button id="next_id_button" type="submit" class="btn btn-sm btn-primary">Next Chapter</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="verse_pager" name="verse_pager">
+        <ul t-if="verse_pager['page_count'] > 1" t-attf-class="#{ classname or '' } pagination m-0 #{_classes}" t-att-style="style or None">
+            <li t-attf-class="page-item #{'disabled' if verse_pager['page']['num'] == 1 else ''}">
+                <a t-att-href=" verse_pager['page_previous']['url'] if verse_pager['page']['num'] != 1 else None" class="page-link">Prev</a>
+            </li>
+            <t t-foreach="verse_pager['pages']" t-as="page">
+                <li t-attf-class="page-item #{'active' if page['num'] == verse_pager['page']['num'] else ''}">
+                    <a t-att-href="page['url']" class="page-link" t-raw="page['num']"/></li>
+            </t>
+            <li t-attf-class="page-item #{'disabled' if verse_pager['page']['num'] == verse_pager['page_count'] else ''}">
+                <a t-att-href="verse_pager['page_next']['url'] if verse_pager['page']['num'] != verse_pager['page_count'] else None" class="page-link">Next</a>
+            </li>
+        </ul>
+    </template>
+
+    <template id="edit_verse_form">
+        <form id="edit_verse" t-attf-action="/edit/verse" method="post" role="form"
+              t-if="chapter_id.create_id == user_id" class="tag_text js_website_submit_form">
+            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+            <input type="hidden" name="verse_id" t-att-value="verse.id"/>
+            <ul>
+                <input class="col-md-2" type="text" name="chapter" t-att-value="verse.chapter"/>
+                 : <input class="col-md-2" type="text" name="verse" t-att-value="verse.name"/>
+            </ul>
+            <ul>
+                <textarea name="content" id="content" required="True" class="form-control load_editor">
+                    <t t-if="verse" t-esc="verse.content"/>
+                </textarea>
+            </ul>
+            <ul>
+                <button type="submit" class="btn btn-warning mt8 btn-sm">Edit</button>
+                <a role="button" t-attf-href="/remove/verse/#{slug(verse)}" class="btn btn-sm btn-danger mt8">Remove</a>
+                <a role="button" t-attf-href="/up/verse/#{slug(verse)}" class="btn btn-sm btn-primary mt8">Up</a>
+                <a role="button" t-attf-href="/down/verse/#{slug(verse)}" class="btn btn-sm btn-primary mt8">Down</a>
+            </ul>
+        </form>
+    </template>
+
+    <template id="add_verse_form">
+         <form t-attf-action="/add/verse" method="post" role="form" class="tag_text js_website_submit_form mt16">
+            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+            <input type="hidden" name="chapter_id" t-att-value="chapter_id.id"/>
+            <ul>
+                <input class="col-md-2" type="text" name="chapter" placeholder="Chapter"/>
+                  :  <input class="col-md-2" type="text" name="name" placeholder="Verse"/>
+            </ul>
+            <ul>
+                <textarea name="content" id="content" required="True" class="form-control load_editor"/>
+            </ul>
+            <ul><button type="submit" class="btn btn-primary mt8 btn-sm">Add New Verse</button></ul>
+        </form>
+   </template>
+    
+</odoo>

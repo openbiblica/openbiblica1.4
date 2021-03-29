@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="dictionaries_template" name="Dictionaries">
+        <t t-call="openbiblica.openbiblica_layout">
+            <div class="container">
+                <table class="table table-sm o_main_table">
+                    <tr>
+                        <th><h4>Dictionary Name</h4></th>
+                        <th><h4>Source Language</h4></th>
+                        <th><h4>Target Language</h4></th>
+                        <th><h4>Author</h4></th>
+                    </tr>
+                    <tr t-foreach="dicts" t-as="dict_id">
+                        <td><a t-attf-href="/dictionary/#{slug(dict_id)}"><h5 t-esc="dict_id.name"/></a></td>
+                        <td><h5 t-esc="dict_id.source_lang_id.name"/></td>
+                        <td><h5 t-esc="dict_id.target_lang_id.name"/></td>
+                        <td><h5 t-esc="dict_id.create_id.name"/></td>
+                    </tr>
+                    <tr>
+                        <td align="left">
+                            <a role="button" href="/create/dictionary" class="btn btn-sm btn-danger">Create New</a></td>
+                        <td/>
+                        <td/>
+                    </tr>
+                </table>
+                <div class="mt32 mb32" align="center">
+                    <span><a href="javascript: window.history.back()" class="btn btn-sm btn-danger">Back</a></span>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="dictionary_editor" name="Dictionary Editor">
+        <t t-call="openbiblica.openbiblica_layout">
+            <div class="container">
+                <h3>Dictionary Project Form</h3>
+                <form t-attf-action="/save/dictionary" method="post" role="form" class="tag_text js_website_submit_form o_editor">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <input t-if="dictionary_id" type="hidden" name="dictionary_id" t-att-value="dictionary_id.id"/>
+                    <div class="form-group row">
+                        <label class="col-md-2 col-form-label" for="name">Dictionary Title*</label>
+                        <div class="col-md-8">
+                            <input type="text" name="name" required="True" class="form-control" t-att-value="dictionary_id.name if dictionary_id else ''" placeholder="e.g. New OpenBiblica Version"/>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-lg-2 col-form-label mb16" for="source_lang_id">Source Language</label>
+                        <div class="col-md-8">
+                            <select id="source_lang_id" name="source_lang_id" t-attf-class="form-control">
+                                <option value="">Select...</option>
+                                <option t-foreach="source_langs" t-as="slg" t-att-value="slg.id"
+                                        t-att-selected="slg.id == dictionary_id.source_lang_id.id if dictionary_id else slg.id == ''">
+                                    <t t-esc="slg.name"/>
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-lg-2 col-form-label mb16" for="target_lang_id">Target Language</label>
+                        <div class="col-md-8">
+                            <select id="target_lang_id" name="target_lang_id" t-attf-class="form-control">
+                                <option value="">Select...</option>
+                                <option t-foreach="langs" t-as="lg" t-att-value="lg.id"
+                                        t-att-selected="lg.id == dictionary_id.target_lang_id.id if dictionary_id else lg.id == ''">
+                                    <t t-esc="lg.name"/>
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-lg-2 col-form-label mb16" for="lang_button"/>
+                        <div class="col-md-8">
+                            <a href="#" name="switch_show" class="btn btn-sm btn-danger">My target language is not in the list</a>
+                        </div>
+                    </div>
+                    <div name='show_items' style="display:none;" class="form-group row">
+                        <label class="col-lg-2 col-form-label mb16" for="target_lang_id">New Target Language Name*</label>
+                        <div class="col-md-8">
+                            <input type="text" name="lang_name" class="form-control" placeholder="e.g. Bahasa Indonesia"/>
+                        </div>
+                    </div>
+                    <div name='show_items' style="display:none;" class="form-group row">
+                        <label class="col-lg-2 col-form-label mb16" for="target_lang_id">Orientation</label>
+                        <div class="col-md-8">
+                            <select id="direction" name="direction" t-attf-class="form-control">
+                                <option value="ltr">Left-to-Right</option>
+                                <option value="rtl">Right-to-Left</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-lg-2 col-form-label mb16" for="title_abrv">Upload js file</label>
+                        <div class="col-md-8">
+                            <input type="file" class="oe_import_file" name="files" accept=".txt"/>
+                        </div>
+                    </div>
+                    <div class="mt32 mb32" align="center">
+                        <span><a href="javascript: window.history.back()" class="btn btn-sm btn-danger">Back</a></span>
+                        <button type="submit" class="btn btn-primary btn-sm">Save</button>
+                    </div>
+                </form>
+            </div>
+        </t>
+    </template>
+
+    <template id="view_dictionary" name="Dictionary">
+        <t t-call="openbiblica.openbiblica_layout">
+            <div class="container">
+                <div class="o_edit_mode" t-if="dictionary_id.create_id == user_id"/>
+                <table class="table table-sm" id="dictionary">
+                    <tr id="dictionary">
+                        <td width="20%"><h1>Dictionary Name</h1></td>
+                        <td name='source_dictionary'/>
+                        <td>
+                            <h1 t-esc="dictionary_id.name"/>
+                            <t t-if="dictionary_id.create_id == user_id" name='show_items' style="display:none;">
+                                <span name='show_items' style="display:none;" t-if="dictionary_id.create_id == user_id">
+                                    <form t-attf-action="/edit/dictionary" method="post" role="form" class="tag_text js_website_submit_form">
+                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                        <input type="hidden" name="dictionary_id" t-att-value="dictionary_id.id"/>
+                                        <button type="submit" class="btn btn-warning btn-sm">Edit Project Title</button>
+                                        <a role="button" t-attf-href="/remove/dictionary/#{slug(dictionary_id)}" class="btn btn-sm btn-danger">Remove this project</a>
+                                    </form>
+                                </span>
+                            </t>
+                        </td>
+                    </tr>
+                    <tr id="author">
+                        <td>Author</td>
+                        <td name='source_author'/>
+                        <td><span t-field="dictionary_id.create_id"/></td>
+                    </tr>
+                    <tr id="source_lang">
+                        <td>Source Language</td>
+                        <td name='source_lang'/>
+                        <td><span t-field="dictionary_id.source_lang_id"/></td>
+                    </tr>
+                    <tr id="target_lang">
+                        <td>Target Language</td>
+                        <td name='target_lang'/>
+                        <td><span t-field="dictionary_id.target_lang_id"/></td>
+                    </tr>
+                </table>
+                <t t-call="openbiblica.word_table" />
+                <div class="mt32 mb32" align="center">
+                    <span><a href="javascript: window.history.back()" class="btn btn-sm btn-danger">Back</a></span>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="view_dictionary_search" name="Search Dictionary Result">
+        <t t-call="openbiblica.openbiblica_layout">
+            <div class="container">
+                <div class="o_edit_mode" t-if="dictionary_id.create_id == user_id"/>
+                <div class="row">
+                    <div class="col-lg-12 pt16 pb16" style="text-align: center;">
+                        <h4><font style="font-size: 62px;">
+                            <p t-esc='keyword'/>
+                            in Dictionary <span t-esc='dictionary_id.name'/>
+                        </font></h4>
+                    </div>
+                </div>
+                <t t-call="openbiblica.word_table" />
+            </div>
+        </t>
+    </template>
+
+    <template id="word_table" name="word_table">
+        <table class="table table-striped o_word">
+            <tr t-if="len(results)">
+                <td colspan="2">
+                    <span t-esc='len(results)'/> from <span t-esc='total'/> match found
+                    <t t-call="website.pager" >
+                        <t t-set="classname">float-right</t>
+                    </t>
+                </td>
+            </tr>
+            <tr t-if="len(results)" t-foreach="results" t-as="word_id">
+                <td>
+                    <h5 t-field="word_id.name" />
+                    <span style="color: blue;" t-esc="word_id._transliterating()"/>
+                </td>
+                <td>
+                    <t t-call="openbiblica.meanings" />
+                </td>
+            </tr>
+            <tr t-if="len(results)">
+                <td colspan="2">
+                    <t t-call="website.pager" >
+                        <t t-set="classname">float-right</t>
+                    </t>
+                </td>
+            </tr>
+            <tr t-else=""><td align="center">
+                <h4>Sorry, we can't find what you are looking for.<br/>
+                Please search again.</h4></td></tr>
+        </table>
+    </template>
+
+    <template id="meanings">
+        <t t-foreach="word_id._dictionary_meanings(dictionary_id.id)" t-as="meaning_id">
+            <h5><span t-field="meaning_id.name"/>
+            <a t-attf-href="/remove/meaning/#{slug(meaning_id)}" name='show_items'
+               style="display:none;"><i class="fa fa-minus-square fa-danger"/></a>
+            </h5>
+        </t>
+        <div id="add_meaning" groups="base.group_user,base.group_portal">
+            <form t-attf-action="/add/meaning/" id="add_meaning" method="post" role="form">
+                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                <input type="text" name="meaning"/>
+                <input type="hidden" name="word_id" t-att-value="word_id.id"/>
+                <input type="hidden" name="dictionary_id" t-att-value="dictionary_id.id"/>
+                <input type="hidden" name="page" t-att-value="page"/>
+                <button id="add_meaning" type="submit" class="btn btn-primary btn-sm">Add</button>
+            </form><br/>
+        </div>
+    </template>
+
+    <template id="view_word" name="word">
+        <t t-call="website_openbiblica.openbiblica_layout">
+            <div class="container">
+                <t t-call="website_openbiblica.word_table"/>
+                <div class="mt32 mb32" align="center" t-if="line_id">
+                    <span><a t-attf-href="/line/#{line_id}" class="btn btn-sm btn-danger">Back to line</a></span>
+                </div>
+                <div class="mt32 mb32" align="center" t-else="">
+                    <span><a href="javascript: window.history.back()" class="btn btn-sm btn-danger">Back</a></span>
+                </div>
+                <t t-call="website_openbiblica.forum">
+                    <t t-set="word_forum" t-value="True"/>
+                </t>
+            </div>
+        </t>
+    </template>
+
+</odoo>
