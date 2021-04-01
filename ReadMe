@@ -6,8 +6,8 @@ INSTALLATION
 2. Install Python Transliterate
 
 	LINUX
-	cd /opt/odoo
-	./use_odoo
+	cd /opt/bitnami/
+	sudo ./use_odoo
 	pip install transliterate
 
 	WINDOWS
@@ -15,3 +15,16 @@ INSTALLATION
 	pip install transliterate
 
 3. Install Openbiblica as odoo apps
+
+4. Install Dictionaries from data folder
+
+5. Install Bibles from data folder
+
+6. Allow Admin user to mapping words in Dictionary > User Setting Menu
+
+7. Mapping words trough url /wordmapping/
+
+NOTE
+restart server on google cloud:
+sudo /opt/bitnami/ctlscript.sh restart
+
