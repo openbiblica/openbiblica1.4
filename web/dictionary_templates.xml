@@ -35,7 +35,7 @@
         <t t-call="openbiblica.openbiblica_layout">
             <div class="container">
                 <h3>Dictionary Project Form</h3>
-                <form t-attf-action="/save/dictionary" method="post" role="form" class="tag_text js_website_submit_form o_editor">
+                <form t-attf-action="/save/dictionary" method="post" role="form" class="tag_text js_website_submit_form o_editor" enctype="multipart/form-data">>
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                     <input t-if="dictionary_id" type="hidden" name="dictionary_id" t-att-value="dictionary_id.id"/>
                     <div class="form-group row">
@@ -90,9 +90,9 @@
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-lg-2 col-form-label mb16" for="title_abrv">Upload js file</label>
+                        <label class="col-lg-2 col-form-label mb16" for="file">Upload js file</label>
                         <div class="col-md-8">
-                            <input type="file" class="oe_import_file" name="files" accept=".txt"/>
+                            <input type="file" class="oe_import_file" name="file" accept=".txt"/>
                         </div>
                     </div>
                     <div class="mt32 mb32" align="center">
@@ -141,7 +141,61 @@
                         <td name='target_lang'/>
                         <td><span t-field="dictionary_id.target_lang_id"/></td>
                     </tr>
+                    <tr id="default_bible">
+                        <td>Default Bible</td>
+                        <td name='default_bible_dict'/>
+                        <td>
+                            <a t-if="dictionary_id.default_bible_id" target="_blank"
+                               t-attf-href="/bible/#{slug(dictionary_id.default_bible_id)}">
+                                <span t-field="dictionary_id.default_bible_id.name"/></a>
+                            <div t-if="dictionary_id.create_id == user_id" name='show_items' style="display:none;">
+                                <form t-attf-action="/default/bible/#{slug(dictionary_id)}" method="post" role="form" class="o_default_bible">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <input type="hidden" name="source_lang_id" t-att-value="dictionary_id.source_lang_id.id"/>
+                                    <ul class="nav navbar-nav ml-auto">
+                                        <li><div style="margin-right: 4px;">
+                                            <select name="biblica_id" class="form-control">
+                                                <option value="">Default Bible...</option>
+                                            </select>
+                                        </div></li>
+                                    </ul>
+                                    <button type="submit" class="btn btn-primary btn-sm">Select Default Bible</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr id="dict_reference">
+                        <td>Dictionary Reference</td>
+                        <td name='dict_reference'/>
+                        <td>
+                            <a t-if="dictionary_id.dict_reference_id" target="_blank"
+                               t-attf-href="/dictionary/#{slug(dictionary_id.dict_reference_id)}">
+                                <span t-field="dictionary_id.dict_reference_id.name"/></a>
+                            <div t-if="dictionary_id.create_id == user_id" name='show_items' style="display:none;">
+                                <form t-attf-action="/reference/#{slug(dictionary_id)}" method="post" role="form" class="o_dict_reference">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <input type="hidden" name="dict_lang_id" t-att-value="dictionary_id.source_lang_id.id"/>
+                                    <ul class="nav navbar-nav ml-auto">
+                                        <li><div style="margin-right: 4px;">
+                                            <select name="dict_reference_id" class="form-control">
+                                                <option value="">Dictionary Reference...</option>
+                                            </select>
+                                        </div></li>
+                                    </ul>
+                                    <button type="submit" class="btn btn-primary btn-sm">Select Dictionary Reference</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr id="install" t-if="dictionary_id.create_id == user_id and dictionary_id.files">
+                        <td>Install Dictionary</td>
+                        <td name='install_dict'/>
+                        <td>
+                            <a role="button" t-attf-href="/install/dictionary/#{slug(dictionary_id)}" class="btn btn-sm btn-danger">Install Dictionary</a>
+                        </td>
+                    </tr>
                 </table>
+                <t t-if="not biblica_id and dictionary_id.default_bible_id" t-set="biblica_id" t-value="dictionary_id.default_bible_id"/>
                 <t t-call="openbiblica.word_table" />
                 <div class="mt32 mb32" align="center">
                     <span><a href="javascript: window.history.back()" class="btn btn-sm btn-danger">Back</a></span>
@@ -162,6 +216,7 @@
                         </font></h4>
                     </div>
                 </div>
+                <t t-if="not biblica_id and dictionary_id.default_bible_id" t-set="biblica_id" t-value="dictionary_id.default_bible_id"/>
                 <t t-call="openbiblica.word_table" />
             </div>
         </t>
@@ -170,6 +225,7 @@
     <template id="word_table" name="word_table">
         <table class="table table-striped o_word">
             <tr t-if="len(results)">
+                <td t-if="dictionary_id.dict_reference_id" />
                 <td colspan="2">
                     <span t-esc='len(results)'/> from <span t-esc='total'/> match found
                     <t t-call="website.pager" >
@@ -177,16 +233,64 @@
                     </t>
                 </td>
             </tr>
+            <tr>
+                <td id="sorting">
+                    <table>
+                        <td>Sort By:</td>
+                        <td>
+                            <form t-attf-action="/search/dictionary/"
+                                  method="post" role="form" class="tag_text js_website_submit_form">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <input type="hidden" name="dicti_id" t-att-value="dictionary_id.id"/>
+                                <input type="hidden" name="dict_keyword" t-att-value="keyword"/>
+                                <input type="hidden" name="sorting" value="name asc"/>
+                                <button type="submit" class="btn btn-warning btn-sm">Word</button>
+                            </form>
+                        </td>
+                        <td>
+                            <form t-attf-action="/search/dictionary/"
+                                  method="post" role="form" class="tag_text js_website_submit_form">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <input type="hidden" name="dicti_id" t-att-value="dictionary_id.id"/>
+                                <input type="hidden" name="dict_keyword" t-att-value="keyword"/>
+                                <input type="hidden" name="sorting" value="total desc"/>
+                                <button type="submit" class="btn btn-warning btn-sm">Total</button>
+                            </form>
+                        </td>
+                    </table>
+                </td>
+                <td t-if="dictionary_id.dict_reference_id"><span t-esc="dictionary_id.dict_reference_id.name" /></td>
+                <td><span t-esc="dictionary_id.name" /></td>
+            </tr>
             <tr t-if="len(results)" t-foreach="results" t-as="word_id">
                 <td>
                     <h5 t-field="word_id.name" />
-                    <span style="color: blue;" t-esc="word_id._transliterating()"/>
+                    <a t-attf-href="/search/dictionary/#{slug(dictionary_id)}/keyword/#{word_id.name}" target="_blank">
+                        <span style="color: blue;" t-esc="word_id._transliterating()"/><br /></a>
+<!--
+                    <a t-attf-href="/search/bible/#{slug(biblica_id)}/word/#{word_id.name}" target="_blank">
+                        <span style="color: red;" t-field="word_id.total"/><br /></a>
+-->
+                    <a t-if="biblica_id" t-attf-href="/search/bible/#{slug(biblica_id)}/word/#{word_id.name}" target="_blank">
+                        <span style="color: red;" t-field="word_id.total"/><br /></a>
+                    <a t-elif="dictionary_id.dict_reference_id.default_bible_id" t-attf-href="/search/bible/#{slug(dictionary_id.dict_reference_id.default_bible_id)}/word/#{word_id.name}" target="_blank">
+                        <span style="color: red;" t-field="word_id.total"/><br /></a>
+                </td>
+                <td t-if="dictionary_id.dict_reference_id">
+                    <t t-foreach="word_id._dictionary_meanings(dictionary_id.dict_reference_id.id)" t-as="meaning_id">
+                        <h5><span t-field="meaning_id.name"/>
+<!--
+                            ( <span t-esc="meaning_id._frequency()"/> )
+-->
+                        </h5>
+                    </t>
                 </td>
                 <td>
                     <t t-call="openbiblica.meanings" />
                 </td>
             </tr>
             <tr t-if="len(results)">
+                <td t-if="dictionary_id.dict_reference_id" />
                 <td colspan="2">
                     <t t-call="website.pager" >
                         <t t-set="classname">float-right</t>
@@ -201,7 +305,9 @@
 
     <template id="meanings">
         <t t-foreach="word_id._dictionary_meanings(dictionary_id.id)" t-as="meaning_id">
-            <h5><span t-field="meaning_id.name"/>
+            <h5><span t-field="meaning_id.name"/> (
+                <a target="_blank" t-attf-href="/meaning/#{slug(meaning_id)}">
+                    <span t-esc="meaning_id._frequency()"/></a> )
             <a t-attf-href="/remove/meaning/#{slug(meaning_id)}" name='show_items'
                style="display:none;"><i class="fa fa-minus-square fa-danger"/></a>
             </h5>
@@ -213,6 +319,7 @@
                 <input type="hidden" name="word_id" t-att-value="word_id.id"/>
                 <input type="hidden" name="dictionary_id" t-att-value="dictionary_id.id"/>
                 <input type="hidden" name="page" t-att-value="page"/>
+                <input type="hidden" name="sorting" t-att-value="sorting"/>
                 <button id="add_meaning" type="submit" class="btn btn-primary btn-sm">Add</button>
             </form><br/>
         </div>
@@ -231,6 +338,39 @@
                 <t t-call="website_openbiblica.forum">
                     <t t-set="word_forum" t-value="True"/>
                 </t>
+            </div>
+        </t>
+    </template>
+
+    <template id="view_meaning" name="meaning">
+        <t t-call="openbiblica.openbiblica_layout">
+            <div class="container">
+                <div class="o_edit_mode" t-if="meaning_id.create_id == user_id"/>
+                <div class="row">
+                    <div class="col-lg-12 pt16 pb16" style="text-align: center;">
+                        <h4><font style="font-size: 62px;">
+                            <p t-esc='meaning_id.name'/>
+                            in <span t-esc='meaning_id.dictionary_id.name'/>
+                        </font></h4>
+                    </div>
+                </div>
+                <table class="table table-striped o_word">
+                    <tr t-if="len(results)">
+                        <td colspan="2">
+                            <span t-esc='len(results)'/> from <span t-esc='total'/> match found
+                            <t t-call="website.pager" >
+                                <t t-set="classname">float-right</t>
+                            </t>
+                        </td>
+                    </tr>
+                    <tr t-if="len(results)" t-foreach="results" t-as="meaning">
+                        <td><span t-esc="meaning.name" /></td>
+                        <td>
+                            <a t-attf-href="/search/dictionary/#{slug(meaning.dictionary_id)}/keyword/#{meaning.word_id.name}" target="_blank">
+                                <span t-esc="meaning.word_id.name" /></a>
+                        </td>
+                    </tr>
+                </table>
             </div>
         </t>
     </template>

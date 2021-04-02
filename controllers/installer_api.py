@@ -3,6 +3,8 @@
 import logging
 import base64
 import re
+import json
+from odoo.modules.module import get_module_resource
 
 from odoo import http, modules, SUPERUSER_ID, _
 from odoo.http import request
@@ -897,7 +899,112 @@ class WebsiteInstaller(http.Controller):
         if bible_id.create_id != request.env.user:
             return request.redirect(request.httprequest.referrer)
         if not kwargs.get('dictionary_id'):
+            bible_id['default_dictionary_id'] = None
             return request.redirect(request.httprequest.referrer)
         bible_id['default_dictionary_id'] = kwargs.get('dictionary_id')
         return request.redirect(request.httprequest.referrer)
+
+    @http.route(['/install/dictionary/<model("openbiblica.dictionary"):dictionary_id>',
+                 ], type='http', auth="user", website=True)
+    def install_dictionary(self, dictionary_id=0):
+        user_id = request.env.user
+        if dictionary_id.create_id == user_id:
+            status, headers, content = request.env['ir.http'].sudo().binary_content(
+                model='openbiblica.dictionary', id=dictionary_id.id, field='files')
+            contents = json.loads(base64.b64decode(content).decode('utf-8'))
+
+            for line in contents:
+                value = contents[line]
+                lemma = value.get('lemma')
+                strongs_def = value.get('strongs_def')
+                kjv_def = value.get('kjv_def')
+                word_id = request.env['openbiblica.word'].search([("name", "=", lemma),
+                                                                  ("lang_id", "=", dictionary_id.source_lang_id.id)])
+                if not word_id:
+                    word_id = request.env['openbiblica.word'].create({
+                        'name': lemma,
+                        'lang_id': dictionary_id.source_lang_id.id,
+                    })
+#                if strongs_def:
+#                    if not request.env['openbiblica.meaning'].search([("name", "=", strongs_def),
+#                                                                            ("word_id", "=", word_id.id),
+#                                                                            ("dictionary_id", "=", dictionary_id.id)]):
+#                        request.env['openbiblica.meaning'].create({
+#                            'name': strongs_def,
+#                            'word_id': word_id.id,
+#                            'dictionary_id': dictionary_id.id,
+#                        })
+                if kjv_def:
+                    if not request.env['openbiblica.meaning'].search([("name", "=", kjv_def),
+                                                                            ("word_id", "=", word_id.id),
+                                                                            ("dictionary_id", "=", dictionary_id.id)]):
+                        request.env['openbiblica.meaning'].create({
+                            'name': kjv_def,
+                            'word_id': word_id.id,
+                            'dictionary_id': dictionary_id.id,
+                        })
+
+            dictionary_id['files'] = None
+        return request.redirect('/dictionary/%s' % slug(dictionary_id))
+
+    @http.route(['/default/bible/<model("openbiblica.dictionary"):dictionary_id>'], type='http', auth='user', website=True)
+    def select_default_dictionary(self, dictionary_id=0, **kwargs):
+        if dictionary_id.create_id != request.env.user:
+            return request.redirect(request.httprequest.referrer)
+        if not kwargs.get('biblica_id'):
+            dictionary_id['default_bible_id'] = None
+            return request.redirect(request.httprequest.referrer)
+        dictionary_id['default_bible_id'] = kwargs.get('biblica_id')
+        return request.redirect(request.httprequest.referrer)
+
+    @http.route(['/reference/<model("openbiblica.dictionary"):dictionary_id>'], type='http', auth='user', website=True)
+    def reference(self, dictionary_id=0, **kwargs):
+        if dictionary_id.create_id != request.env.user:
+            return request.redirect(request.httprequest.referrer)
+        if not kwargs.get('dict_reference_id'):
+            dictionary_id['dict_reference_id'] = None
+            return request.redirect(request.httprequest.referrer)
+        dictionary_id['dict_reference_id'] = kwargs.get('dict_reference_id')
+        return request.redirect(request.httprequest.referrer)
+
+    @http.route(['/wordmapping/'], type='http', auth='user', website=True)
+    def reference(self, **kwargs):
+        values = {
+            'user_id': request.env.user,
+        }
+        return request.render("openbiblica.wordmapping", values)
+
+    @http.route(['/wordmappingjs'], type='json', auth="user", website=True)
+    def wordmappingjs(self, **kwargs):
+        if not request.env.user.allow_word_mapping:
+            return request.redirect('/my/home')
+        verse_ids = request.env['openbiblica.verse'].search([('is_mapped', '=', False)])
+        if not verse_ids:
+            values = {
+                'total': None,
+            }
+            return values
+        verse_id = verse_ids[0]
+        if verse_id.lang_id.direction == 'rtl':
+            words = verse_id.content.split()
+        else:
+            words = re.findall(r'\w+|[\[\]⸂⸃()]|\S+', verse_id.content)
+        for word in words:
+            word_id = request.env['openbiblica.word'].search([('name', '=', word), ('lang_id', '=', verse_id.lang_id.id)])
+            if not word_id:
+                word_id = request.env['openbiblica.word'].create({
+                    'name': word,
+                    'lang_id': verse_id.lang_id.id,
+                })
+            to = word_id.total + 1
+            word_id['total'] = to
+        verse_id['is_mapped'] = True
+        if not kwargs.get('tot'):
+            total_mapped = 0
+        else:
+            total_mapped = int(kwargs.get('tot'))
+        values = {
+            'total_mapped': total_mapped + 1,
+        }
+        return values
 

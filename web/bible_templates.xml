@@ -133,6 +133,7 @@
                         <td name='source_lang'/>
                         <td><span t-field="bible_id.lang_id"/></td>
                     </tr>
+<!--
                     <tr id="install" t-if="bible_id.create_id == user_id" groups="website.group_website_publisher">
                         <td>Import from USFM</td>
                         <td name='source_usfm'/>
@@ -140,6 +141,7 @@
                             <a role="button" t-attf-href="/install/b/usfm/#{slug(bible_id)}" class="btn btn-sm btn-danger">Install USFM</a>
                         </td>
                     </tr>
+-->
                     <tr id="default_dictionary " t-if="bible_id.create_id == user_id and bible_id.lang_id.allow_dictionary" groups="website.group_website_publisher">
                         <td>Default Dictionary</td>
                         <td name='default_dictionary'/>
@@ -236,7 +238,7 @@
                     <div class="col-lg-12 pt16 pb16" style="text-align: center;">
                         <h4><font style="font-size: 62px;">
                             <p t-esc='keyword'/>
-                            in Bible
+                            in Bible <span t-if="bible_id" t-esc="bible_id.name"/>
                         </font></h4>
                     </div>
                 </div>
@@ -282,12 +284,12 @@
                 <input type="hidden" name="source_lang_id" t-att-value="bible_id.lang_id.id"/>
                 <ul class="nav navbar-nav ml-auto">
                     <li><div style="margin-right: 4px;">
-                        <select name="target_lang_id" class="form-control" required="True">
+                        <select name="target_lang_id" class="form-control">
                             <option value="">Target Language...</option>
                         </select>
                     </div></li>
                     <li><div style="margin-right: 4px;">
-                        <select name="dictionary_id" class="form-control" required="True">
+                        <select name="dictionary_id" class="form-control">
                             <option value="">Dictionary...</option>
                         </select>
                     </div></li>

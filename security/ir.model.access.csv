@@ -16,7 +16,7 @@ access_openbiblica_portal_chapter,openbiblica.chapter.portal,model_openbiblica_c
 access_openbiblica_portal_verse,openbiblica.verse.portal,model_openbiblica_verse,base.group_portal,1,1,1,1
 access_openbiblica_portal_lang,openbiblica.lang.portal,model_openbiblica_lang,base.group_portal,1,1,1,1
 access_openbiblica_all_dictionary,openbiblica.dictionary.all,model_openbiblica_dictionary,,1,0,0,0
-access_openbiblica_all_word,openbiblica.word.all,model_openbiblica_word,,1,0,0,0
+access_openbiblica_all_word,openbiblica.word.all,model_openbiblica_word,,1,1,1,0
 access_openbiblica_all_meaning,openbiblica.meaning.all,model_openbiblica_meaning,,1,0,0,0
 access_openbiblica_all_bible,openbiblica.bible.all,model_openbiblica_bible,,1,0,0,0
 access_openbiblica_all_book,openbiblica.book.all,model_openbiblica_book,,1,0,0,0

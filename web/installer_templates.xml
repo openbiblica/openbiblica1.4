@@ -25,5 +25,16 @@
         </t>
     </template>
 
-    
+    <template id="wordmapping" name="Word Mapping">
+        <t t-call="openbiblica.openbiblica_layout">
+            <div class="container o_wordmapping">
+                <h1 align="center" t-if="user_id.allow_word_mapping">
+                    <input type="hidden" name="total" value="" />
+                    Mapping <span name="total">0</span></h1>
+                <h1 t-else="">You are not allowed to map words. Give permission for this user to map words.</h1>
+            </div>
+        </t>
+    </template>
+
+
 </odoo>

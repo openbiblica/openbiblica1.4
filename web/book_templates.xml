@@ -238,12 +238,12 @@
                         </select>
                     </div>
                     <div style="margin-right: 4px;">
-                        <select name="target_lang_id" class="form-control" required="True">
+                        <select name="target_lang_id" class="form-control">
                             <option value="">Target Language...</option>
                         </select>
                     </div>
                     <div style="margin-right: 4px;">
-                        <select name="dictionary_id" class="form-control" required="True">
+                        <select name="dictionary_id" class="form-control">
                             <option value="">Dictionary...</option>
                         </select>
                     </div>

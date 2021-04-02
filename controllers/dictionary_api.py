@@ -71,23 +71,32 @@ class WebsiteDictionary(http.Controller):
                 'source_lang_id': source_lang_id.id,
                 'target_lang_id': target_lang_id.id,
             })
-        if dictionary_id.files:
-            dictionary_id.files = None
-        if kwargs.get('files'):
-            files = kwargs.get('files').read()
+
+        if kwargs.get('file'):
             dictionary_id.update({
-                'files': base64.b64encode(files)
-            })
+                'files': base64.b64encode(kwargs.get('file').read())
+           })
+
         return request.redirect('/dictionary/%s' % slug(dictionary_id))
 
     @http.route(['/dictionary/<model("openbiblica.dictionary"):dictionary_id>',
+                 '/dictionary/<model("openbiblica.dictionary"):dictionary_id>/sorting/<string:sorting>',
                  '/dictionary/<model("openbiblica.dictionary"):dictionary_id>/page/<int:page>'],
                 type='http', auth="public", website=True, csrf=False)
-    def view_dictionary(self, dictionary_id=0, page=1):
+    def view_dictionary(self, dictionary_id=0, page=1, sorting=None):
         values = {}
         words = request.env['openbiblica.word']
         domain = [('lang_id', '=', dictionary_id.source_lang_id.id)]
         url_args = {}
+        if sorting:
+            try:
+                words._generate_order_by(sorting, None)
+            except ValueError:
+                sorting = False
+        else:
+            sorting = 'name'
+        url_args = {'sorting': sorting}
+
         url = '/dictionary/%s' % (slug(dictionary_id))
         total = words.search_count(domain)
         pager = request.website.pager(
@@ -97,7 +106,7 @@ class WebsiteDictionary(http.Controller):
             step=self._word_per_page,
             url_args=url_args,
         )
-        results = words.search(domain, offset=(page - 1) * self._word_per_page, limit=self._word_per_page)
+        results = words.search(domain, offset=(page - 1) * self._word_per_page, limit=self._word_per_page, order=sorting)
         
         values.update({
             'user_id': request.env.user,
@@ -122,40 +131,53 @@ class WebsiteDictionary(http.Controller):
         else:
             return request.redirect(request.httprequest.referrer)
 
-    @http.route(['/search/dictionary/',
-                 '/search/dictionary/keyword/<string:keyword>',
-                 '/search/dictionary/page/<int:page>',
-                 '/search/dictionary/keyword/<string:keyword>/page/<int:page>',
-                 '/search/dictionary/<model("openbiblica.dictionary"):dictionary_id>/keyword/<string:keyword>',
+    @http.route(['/search/dictionary/'],
+                type='http', auth="public", website=True, csrf=False)
+    def search_dicti(self, **kwargs):
+        if not kwargs.get('dicti_id'):
+            return request.redirect(request.httprequest.referrer)
+        if not kwargs.get('dict_keyword'):
+            if not kwargs.get('sorting'):
+                return request.redirect('/dictionary/%s' % (kwargs.get('dicti_id')))
+            return request.redirect('/dictionary/%s/sorting/%s' % (kwargs.get('dicti_id'), kwargs.get('sorting')))
+        if not kwargs.get('sorting'):
+            return request.redirect('/search/dictionary/%s/keyword/%s' % (kwargs.get('dicti_id'), kwargs.get('dict_keyword')))
+        return request.redirect(
+            '/search/dictionary/%s/keyword/%s/sorting/%s' % (kwargs.get('dicti_id'), kwargs.get('dict_keyword'), kwargs.get('sorting')))
+
+    @http.route(['/search/dictionary/<model("openbiblica.dictionary"):dictionary_id>/keyword/<string:keyword>',
                  '/search/dictionary/<model("openbiblica.dictionary"):dictionary_id>/keyword/<string:keyword>/page/<int:page>',
+                 '/search/dictionary/<model("openbiblica.dictionary"):dictionary_id>/keyword/<string:keyword>/sorting/<string:sorting>',
+                 '/search/dictionary/<model("openbiblica.dictionary"):dictionary_id>/keyword/<string:keyword>/sorting/<string:sorting>/page/<int:page>',
                  ],
                 type='http', auth="public", website=True, csrf=False)
-    def search_dictionary(self, page=1, keyword=None, dictionary_id=0, **kwargs):
+    def search_dictionary(self, page=1, keyword=None, dictionary_id=0, sorting=None, **kwargs):
         values = {}
         words = request.env['openbiblica.word']
         domain = []
         url_args = {}
-        if kwargs.get('dicti_id'):
-            dictionary_id = request.env['openbiblica.dictionary'].sudo().search([('id', '=', int(kwargs.get('dicti_id')))])
-            url_args['dictionary_id'] = dictionary_id.id
-        if kwargs.get('dictionary_id'):
-            dictionary_id = request.env['openbiblica.dictionary'].sudo().search([('id', '=', int(kwargs.get('dictionary_id')))])
-            url_args['dictionary_id'] = dictionary_id.id
         if not dictionary_id:
             return request.redirect('/my/home')
-        if kwargs.get('dict_keyword'):
-            keyword = kwargs.get('dict_keyword').replace('.', ' ')
-        if keyword:
-            domain += [('name', 'ilike', keyword)]
-            values['keyword'] = keyword
-            url_args['keyword'] = keyword
-            for srch in keyword.split(" "):
-                domain += [('name', 'ilike', srch)]
-            url = '/search/dictionary/keyword/%s' % (keyword)
-#            url = '/search/dictionary/%s/keyword/%s' % (slug(dictionary_id),keyword)
+        url_args['dictionary_id'] = dictionary_id.id
+        if not keyword:
+            return request.redirect('/dictionary/%s'  % (slug(dictionary_id)))
+
+        keyword = keyword.replace('.', ' ')
+        domain += [('name', 'ilike', keyword)]
+        values['keyword'] = keyword
+        url_args['keyword'] = keyword
+        for srch in keyword.split(" "):
+            domain += [('name', 'ilike', srch)]
+        url = '/search/dictionary/%s/keyword/%s' % (slug(dictionary_id), keyword)
+
+        if sorting:
+            try:
+                words._generate_order_by(sorting, None)
+            except ValueError:
+                sorting = False
         else:
-            url = '/search/dictionary/'
-#            url = '/search/dictionary/%s' % (slug(dictionary_id))
+            sorting = 'name'
+        url_args = {'sorting': sorting}
 
         total = words.search_count(domain)
         pager = request.website.pager(
@@ -165,7 +187,7 @@ class WebsiteDictionary(http.Controller):
             step=self._word_per_page,
             url_args=url_args,
         )
-        results = words.search(domain, offset=(page - 1) * self._word_per_page, limit=self._word_per_page)
+        results = words.search(domain, offset=(page - 1) * self._word_per_page, limit=self._word_per_page, order=sorting)
 
         values.update({
             'user_id': request.env.user,
@@ -216,10 +238,10 @@ class WebsiteDictionary(http.Controller):
             url=url,
             total=total,
             page=page,
-            step=self._item_per_page,
+            step=self._items_per_page,
             url_args=url_args,
         )
-        results = words.search(domain, offset=(page - 1) * self._item_per_page, limit=self._item_per_page)
+        results = words.search(domain, offset=(page - 1) * self._items_per_page, limit=self._items_per_page)
 
         values.update({
             'user_id': request.env.user,
@@ -230,4 +252,35 @@ class WebsiteDictionary(http.Controller):
             'page': page,
         })
         return request.render("openbiblica.view_word", values)
+
+    @http.route(['/meaning/<model("openbiblica.meaning"):meaning_id>',
+                 '/meaning/<model("openbiblica.meaning"):meaning_id>/page/<int:page>'],
+                type='http', auth="public", website=True, csrf=False)
+    def view_meaning(self, meaning_id=0, page=1):
+        if not meaning_id:
+            return request.redirect('/my/home')
+        values = {}
+        meaning_ids = request.env['openbiblica.meaning']
+        domain = [('dictionary_id.id', '=', meaning_id.dictionary_id.id),('name', 'ilike', meaning_id.name)]
+        url_args = {}
+        url = '/meaning/%s' % (slug(meaning_id))
+        total = meaning_ids.search_count(domain)
+        pager = request.website.pager(
+            url=url,
+            total=total,
+            page=page,
+            step=self._items_per_page,
+            url_args=url_args,
+        )
+        results = meaning_ids.search(domain, offset=(page - 1) * self._items_per_page, limit=self._items_per_page)
+
+        values.update({
+            'user_id': request.env.user,
+            'meaning_id': meaning_id,
+            'results': results,
+            'pager': pager,
+            'total': total,
+            'page': page,
+        })
+        return request.render("openbiblica.view_meaning", values)
 

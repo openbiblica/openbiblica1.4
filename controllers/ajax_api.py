@@ -159,3 +159,11 @@ class WebsiteBiblicaAjax(http.Controller):
         vals = [{'id': d.id, 'name': d.name} for d in dicts]
         return vals
 
+    @http.route(['/get/dict_ref'], type='json', auth="public", website=True)
+    def dictionary_reference(self, **kwargs):
+        if not kwargs.get('dict_lang_id'):
+            return None
+        dicts = request.env['openbiblica.dictionary'].sudo().search([('source_lang_id', '=', int(kwargs.get('dict_lang_id')))])
+        vals = [{'id': dic.id, 'name': dic.name} for dic in dicts]
+        return vals
+
