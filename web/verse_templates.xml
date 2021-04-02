@@ -57,11 +57,18 @@
     <template id="transliterate">
         <div class="mt8 mb8 row">
             <div class="col mb32" t-foreach="word_ids" t-as="word_id">
-                <a t-attf-href="/search/dictionary/#{dict_id}/keyword/#{word_id.name}" target="_blank">
-                    <span style="color: blue;" t-esc="word_id._transliterating()"/><br /></a>
+                <t t-if="dict_id">
+                    <a t-attf-href="/search/dictionary/#{dict_id}/keyword/#{word_id.name}" target="_blank">
+                        <span style="color: blue;" t-esc="word_id._transliterating()"/><br /></a>
+                </t>
+                <t t-else=""><span style="color: blue;" t-esc="word_id._transliterating()"/><br /></t>
                 <span t-esc="word_id.name"/><br />
                 <a t-attf-href="/search/bible/#{slug(bible_id)}/word/#{word_id.name}" target="_blank">
-                    ( <span style="color: red;" t-esc="word_id._frequency(bible_id.id)"/> )<br /></a>
+                    <span style="color: red;" t-field="word_id.total"/><br /></a>
+<!--
+                <a t-attf-href="/search/bible/#{slug(bible_id)}/word/#{word_id.name}" target="_blank">
+                    <span style="color: red;" t-esc="word_id._frequency(bible_id.id)"/><br /></a>
+-->
                 <t t-foreach="word_id._dictionary_meanings(dict_id)" t-as="meaning_id">
                     <p t-field="meaning_id.name"/>
                 </t>

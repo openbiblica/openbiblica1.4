@@ -38,4 +38,25 @@ odoo.define('transliterate.transliterate', function (require) {
         });
     }
 
+    if ($('.o_wordmapping').length) {
+        var wordmapping = function () {
+            var total = $("input[name='total']").val();
+            ajax.jsonRpc('/wordmappingjs/', 'call', {
+                tot: total,
+                }).then(function (data) {
+                    if (data.total_mapped != null){
+                        $("span[name='total']").empty().text(data.total_mapped);
+                        $("input[name='total']").val(data.total_mapped);
+                        wordmapping();
+                    } else {
+                    self.location = "/";
+                    }
+                });
+            };
+
+        $('.o_wordmapping').ready(function(){
+            wordmapping();
+        });
+    }
+
 });

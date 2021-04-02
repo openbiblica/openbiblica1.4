@@ -1,6 +1,90 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
+        <record id="view_openbiblica_user_tree" model="ir.ui.view">
+            <field name="name">res.users.tree</field>
+            <field name="model">res.users</field>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <tree string="user">
+                    <field name="name"/>
+                    <field name="my_bible_ids"/>
+                    <field name="my_dictionary_ids"/>
+                    <field name="dictionary_team_ids"/>
+                    <field name="bible_team_ids"/>
+                    <field name="allow_word_mapping"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_openbiblica_user_form" model="ir.ui.view">
+            <field name="name">res.users.form</field>
+            <field name="model">res.users</field>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <form string="user">
+                    <sheet>
+                        <group col="4" colspan="4">
+                            <field name="name" required="1"/>
+                            <field name="my_bible_ids"/>
+                            <field name="my_dictionary_ids"/>
+                            <field name="dictionary_team_ids"/>
+                            <field name="bible_team_ids"/>
+                            <field name="allow_word_mapping"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_openbiblica_user_search" model="ir.ui.view">
+            <field name="name">res.users.search</field>
+            <field name="model">res.users</field>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <search string="user">
+                    <field name="name"/>
+                    <field name="my_bible_ids"/>
+                    <field name="my_dictionary_ids"/>
+                    <field name="dictionary_team_ids"/>
+                    <field name="bible_team_ids"/>
+                    <field name="allow_word_mapping"/>
+                    <newline/>
+                    <group expand="0" string="Group By...">
+                        <filter string="Bible Team" name="group_by_bible_team_ids"
+                                domain="[]" context="{'group_by':'bible_team_ids'}"/>
+                        <filter string="Dictionary Team" name="group_by_dictionary_team_ids"
+                                domain="[]" context="{'group_by':'dictionary_team_ids'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="act_openbiblica_user_view">
+            <field name="name">Users</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.users</field>
+            <field name="binding_view_types">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_openbiblica_user_search"/>
+            <field name="domain">[]</field>
+            <field name="context">{}</field>
+        </record>
+
+        <record model="ir.actions.act_window.view" id="act_openbiblica_user_view_form">
+            <field name="act_window_id" ref="act_openbiblica_user_view"/>
+            <field name="sequence" eval="20"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_openbiblica_user_form"/>
+        </record>
+
+        <record model="ir.actions.act_window.view" id="act_openbiblica_user_view_tree">
+            <field name="act_window_id" ref="act_openbiblica_user_view"/>
+            <field name="sequence" eval="10"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_openbiblica_user_tree"/>
+        </record>
+
         <record id="view_openbiblica_language_tree" model="ir.ui.view">
             <field name="name">openbiblica.lang.tree</field>
             <field name="model">openbiblica.lang</field>
@@ -96,6 +180,8 @@
                     <field name="target_lang_id"/>
                     <field name="create_id"/>
                     <field name="team_ids"/>
+                    <field name="default_bible_id"/>
+                    <field name="dict_reference_id"/>
                 </tree>
             </field>
         </record>
@@ -113,6 +199,8 @@
                             <field name="target_lang_id"/>
                             <field name="create_id"/>
                             <field name="team_ids"/>
+                            <field name="default_bible_id"/>
+                            <field name="dict_reference_id"/>
                         </group>
                     </sheet>
                 </form>
@@ -130,6 +218,8 @@
                     <field name="target_lang_id"/>
                     <field name="team_ids"/>
                     <field name="create_id"/>
+                    <field name="default_bible_id"/>
+                    <field name="dict_reference_id"/>
                     <newline/>
                     <group expand="0" string="Group By...">
                         <filter string="Source Language" name="group_by_source_lang_id"
@@ -176,6 +266,7 @@
                 <tree string="word">
                     <field name="name"/>
                     <field name="lang_id"/>
+                    <field name="total"/>
                     <field name="meaning_ids"/>
                 </tree>
             </field>
@@ -191,6 +282,7 @@
                         <group col="4" colspan="4">
                             <field name="name" required="1"/>
                             <field name="lang_id"/>
+                            <field name="total"/>
                             <field name="meaning_ids"/>
                         </group>
                     </sheet>
@@ -342,6 +434,13 @@
                   parent="menu_openbiblica_dictionary"
                   action="act_openbiblica_language_view"
                   sequence="30"/>
+
+        <menuitem id="menu_openbiblica_user_settings"
+                  name="User Settings"
+                  parent="menu_openbiblica_dictionary"
+                  action="act_openbiblica_user_view"
+                  sequence="40"/>
+
 
     </data>
 </odoo>

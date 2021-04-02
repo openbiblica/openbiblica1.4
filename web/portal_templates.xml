@@ -94,16 +94,17 @@
     </template>
 
     <template id="search_dictionary" name="Dictionary Search">
-        <form t-attf-action="/search/dictionary" method="post" role="form" class="tag_text js_website_submit_form o_dictionary_search">
+        <form t-attf-action="/search/dictionary" id="search_dict_form"
+              method="post" role="form" class="tag_text js_website_submit_form o_dictionary_search">
             <div class="collapse navbar-collapse" id="search_menu_collapse">
                 <ul class="nav navbar-nav ml-auto text-right">
                     <li><div style="margin-right: 4px;">
-                        <select name="s_lang_id" class="form-control" required="True">
+                        <select name="dict_s_lang_id" class="form-control" required="True">
                             <option value="">Source Language...</option>
                         </select>
                     </div></li>
                     <li><div style="margin-right: 4px;">
-                        <select name="t_lang_id" class="form-control" required="True">
+                        <select name="dict_t_lang_id" class="form-control" required="True">
                             <option value="">Target Language...</option>
                         </select>
                     </div></li>

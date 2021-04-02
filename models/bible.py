@@ -102,6 +102,7 @@ class Verses(models.Model):
     insert_paragraph = fields.Boolean('Insert paragraph tab')
 
     is_interlinear = fields.Boolean(default=False)
+    is_mapped = fields.Boolean(default=False)
 
     def _transliterating(self):
         if self.lang_id.name == 'Greek':

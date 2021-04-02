@@ -121,45 +121,46 @@ odoo.define('openbiblica.website_openbiblica', function (require) {
     }
 
     if ($('.o_dictionary_search').length) {
-        var s_lang_options = $("select[name='s_lang_id']:enabled");
-        var t_lang_options = $("select[name='t_lang_id']:enabled");
+        var dict_s_lang_options = $("select[name='dict_s_lang_id']:enabled");
+        var dict_t_lang_options = $("select[name='dict_t_lang_id']:enabled");
         var dicti_options = $("select[name='dicti_id']:enabled");
+        var dict_form = $("form[id='search_dict_form']:enabled");
 
         $('.o_dictionary_search').ready(function(){
             dicti_options.parent().hide();
-            t_lang_options.parent().hide();
+            dict_t_lang_options.parent().hide();
             ajax.jsonRpc('/get/source_langs/', 'call', {
                 }).then(function (source_langs) {
                 if (source_langs.length > 0){
                     var i;
                     for (i = 0; i < source_langs.length; i++) {
-                        s_lang_options.append('<option value="' + source_langs[i].id + '">' + source_langs[i].name + '</option>');
+                        dict_s_lang_options.append('<option value="' + source_langs[i].id + '">' + source_langs[i].name + '</option>');
                     };
                 };
             });
         });
-        s_lang_options.on('change', s_lang_options, function () {
-            t_lang_options.children('option:not(:first)').remove();
-            t_lang_options.parent().hide();
-            var source_lang = s_lang_options.val();
+        dict_s_lang_options.on('change', dict_s_lang_options, function () {
+            dict_t_lang_options.children('option:not(:first)').remove();
+            dict_t_lang_options.parent().hide();
+            var source_lang = dict_s_lang_options.val();
             ajax.jsonRpc('/get/target_langs/', 'call', {
                   source_lang_id: source_lang,
                 }).then(function (target_langs) {
                 if (target_langs){
                     var i;
                     for (i = 0; i < target_langs.length; i++) {
-                        t_lang_options.append('<option value="' + target_langs[i].id + '">' + target_langs[i].name + '</option>');
+                        dict_t_lang_options.append('<option value="' + target_langs[i].id + '">' + target_langs[i].name + '</option>');
                     };
-                    if (i>0){t_lang_options.parent().show();};
+                    if (i>0){dict_t_lang_options.parent().show();};
                 };
             });
         });
-        if (t_lang_options.length >= 1) {
-            t_lang_options.on('change', t_lang_options, function () {
+        if (dict_t_lang_options.length >= 1) {
+            dict_t_lang_options.on('change', dict_t_lang_options, function () {
                 dicti_options.children('option:not(:first)').remove();
                 dicti_options.parent().hide();
-                var source_lang = s_lang_options.val();
-                var target_lang = t_lang_options.val();
+                var source_lang = dict_s_lang_options.val();
+                var target_lang = dict_t_lang_options.val();
                 ajax.jsonRpc('/get/dictionaries/', 'call', {
                       source_lang_id: source_lang,
                       target_lang_id: target_lang,
@@ -175,6 +176,14 @@ odoo.define('openbiblica.website_openbiblica', function (require) {
                 });
             });
         }
+//        if (dicti_options.length >= 1) {
+//            dicti_options.on('change', dicti_options, function ()
+//           {
+//                dict_form.attrs['t-attf-action'] += "/dictionary";
+//                dict_form.setAttribute("t-attf-action", '/search/');
+//                node.attrs['t-att-class'] += " + '" + action_classes + "'";
+//            });
+//        }
     }
 
 //    USFM JSON
@@ -733,6 +742,44 @@ odoo.define('openbiblica.website_openbiblica', function (require) {
         }
     }
 
+// SELECT DICTIONARY BIBLE
+    if ($('.o_default_bible').length) {
+        var dict_lang = $("input[name='source_lang_id']:enabled").val();
+        var bib_options = $("select[name='biblica_id']:enabled");
 
+        $('.o_default_bible').ready(function(){
+            ajax.jsonRpc('/get/bibles/', 'call', {
+                  lang_id: dict_lang,
+                }).then(function (bibles) {
+                if (bibles){
+                    var i;
+                    for (i = 0; i < bibles.length; i++) {
+                        bib_options.append('<option value="' + bibles[i].id + '">' + bibles[i].name + '</option>');
+                    };
+                    if (i>0){bib_options.parent().show();};
+                };
+            });
+        });
+    }
+
+// SELECT DICTIONARY BIBLE
+    if ($('.o_dict_reference').length) {
+        var dict_lang = $("input[name='dict_lang_id']:enabled").val();
+        var dict_options = $("select[name='dict_reference_id']:enabled");
+
+        $('.o_dict_reference').ready(function(){
+            ajax.jsonRpc('/get/dict_ref/', 'call', {
+                  dict_lang_id: dict_lang,
+                }).then(function (dicts) {
+                if (dicts){
+                    var i;
+                    for (i = 0; i < dicts.length; i++) {
+                        dict_options.append('<option value="' + dicts[i].id + '">' + dicts[i].name + '</option>');
+                    };
+                    if (i>0){dict_options.parent().show();};
+                };
+            });
+        });
+    }
 
 });

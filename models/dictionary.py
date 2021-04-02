@@ -18,6 +18,8 @@ class Dictionaries(models.Model):
     source_lang_id = fields.Many2one('openbiblica.lang', string='Source Language', required=True)
     target_lang_id = fields.Many2one('openbiblica.lang', string='Target Language', required=True)
     files = fields.Binary('File Attachment', attachment=True)
+    default_bible_id = fields.Many2one('openbiblica.bible', string='Default Bible')
+    dict_reference_id = fields.Many2one('openbiblica.dictionary', string='Dictionary Reference')
 
     _sql_constraints = [(
         'unique_name',
@@ -28,11 +30,12 @@ class Dictionaries(models.Model):
 class Word(models.Model):
     _name = "openbiblica.word"
     _description = "Word"
-    _order = 'name'
+    _order = 'name asc, total desc'
 
     name = fields.Char('Word', required=True)
     lang_id = fields.Many2one('openbiblica.lang', string='Source Language', required=True)
     meaning_ids = fields.One2many('openbiblica.meaning', 'word_id', string='Meanings')
+    total = fields.Integer(default=0)
 
     _sql_constraints = [(
         'unique_name',
@@ -69,6 +72,12 @@ class Meaning(models.Model):
     word_id = fields.Many2one('openbiblica.word', string='Word Meaning', required=True)
     dictionary_id = fields.Many2one('openbiblica.dictionary', string='Dictionary', required=True)
     lang_id = fields.Many2one(related='dictionary_id.target_lang_id')
+
+    def _frequency(self):
+        frequency = len(self.env['openbiblica.meaning'].sudo().search([('dictionary_id.id', '=', self.dictionary_id.id),
+                                                                       ('name', 'ilike', self.name)]))
+        return frequency
+
 
 class GreekLanguagePack(TranslitLanguagePack):
     _name = "openbiblica.GreekLanguagePack"
