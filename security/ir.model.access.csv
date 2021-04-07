@@ -23,3 +23,4 @@ access_openbiblica_all_book,openbiblica.book.all,model_openbiblica_book,,1,0,0,0
 access_openbiblica_all_chapter,openbiblica.chapter.all,model_openbiblica_chapter,,1,0,0,0
 access_openbiblica_all_verse,openbiblica.verse.all,model_openbiblica_verse,,1,0,0,0
 access_openbiblica_all_lang,openbiblica.lang.all,model_openbiblica_lang,,1,0,0,0
+access_openbiblica_all_users,res.users.all,model_res_users,,1,0,0,0
