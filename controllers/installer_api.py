@@ -396,51 +396,51 @@ class WebsiteInstaller(http.Controller):
     @http.route(['/sourcing/c'], type='http', auth="user", website=True)
     def sourcing_c(self, **kwargs):
         book_id = request.env['openbiblica.book'].search([('id', '=', kwargs.get('book_id'))])
-        if book_id.create_id != request.env.user or request.env.user not in book_id.bible_id.team_ids:
-            return request.redirect('/book/%s' % slug(book_id))
-        s_book_id = request.env['openbiblica.book'].search([('id', '=', kwargs.get('source_book_id'))])
-        if book_id.source_id != s_book_id:
-            self._sourcing(book_id, s_book_id)
-        if not s_book_id.chapter_ids:
-            return request.redirect('/book/%s' % slug(book_id))
-        if kwargs.get('dictionary_id'):
-            book_id.dictionary_id = kwargs.get('dictionary_id')
-        values = {
-            's_chapter_id': s_book_id.chapter_ids[0].id,
-            'book_id': book_id.id,
-        }
-        return request.render("openbiblica.sourcing", values)
+        if book_id.create_id == request.env.user or request.env.user in book_id.bible_id.team_ids:
+            s_book_id = request.env['openbiblica.book'].search([('id', '=', kwargs.get('source_book_id'))])
+            if book_id.source_id != s_book_id:
+                self._sourcing(book_id, s_book_id)
+            if not s_book_id.chapter_ids:
+                return request.redirect(request.httprequest.referrer)
+            if kwargs.get('dictionary_id'):
+                book_id.dictionary_id = kwargs.get('dictionary_id')
+            values = {
+                's_chapter_id': s_book_id.chapter_ids[0].id,
+                'book_id': book_id.id,
+            }
+            return request.render("openbiblica.sourcing", values)
+        return request.redirect('/book/%s' % slug(book_id))
 
     @http.route(['/sourcing/b'], type='http', auth="user", website=True)
     def sourcing_b(self, **kwargs):
         bible_id = request.env['openbiblica.bible'].search([('id', '=', kwargs.get('bible_id'))])
-        if bible_id.create_id != request.env.user or request.env.user not in bible_id.team_ids:
-            return request.redirect('/bible/%s' % slug(bible_id))
-        s_bible_id = request.env['openbiblica.bible'].search([('id', '=', kwargs.get('bible'))])
-        if bible_id.source_id != s_bible_id:
-            self._sourcing(bible_id, s_bible_id)
-        if not s_bible_id.book_ids:
-            return request.redirect('/bible/%s' % slug(bible_id))
-        for s_book_id in s_bible_id.book_ids:
-            if not request.env['openbiblica.book'].search([('bible_id', '=', bible_id.id),
-                                                       ('sequence', '=', s_book_id.sequence)]):
-                self._sourcing_b_c(bible_id, s_book_id)
-            else:
-                if request.env['openbiblica.book'].search([('bible_id', '=', bible_id.id),
-                                                       ('sequence', '=', s_book_id.sequence)]).source_id.id != s_book_id.id:
-                    self._sourcing(request.env['openbiblica.book'].search([('bible_id', '=', bible_id.id),
-                                                       ('sequence', '=', s_book_id.sequence)]), s_book_id)
-        s_book_ids = [j for j in s_bible_id.book_ids if j.chapter_ids]
-        s_book_id = s_book_ids[0]
-        if not s_book_id:
-            return request.redirect('/bible/%s' % slug(bible_id))
-        values = {
-            's_chapter_id': s_book_id.chapter_ids[0].id,
-            'book_id': request.env['openbiblica.book'].search([('bible_id', '=', bible_id.id),
-                                                              ('sequence', '=', s_book_id.sequence)]).id,
-            'bible_id': bible_id.id,
-        }
-        return request.render("openbiblica.sourcing", values)
+        if bible_id.create_id == request.env.user or request.env.user in bible_id.team_ids:
+            s_bible_id = request.env['openbiblica.bible'].search([('id', '=', kwargs.get('bible'))])
+            if bible_id.source_id != s_bible_id:
+                self._sourcing(bible_id, s_bible_id)
+            if not s_bible_id.book_ids:
+                return request.redirect('/bible/%s' % slug(bible_id))
+            for s_book_id in s_bible_id.book_ids:
+                if not request.env['openbiblica.book'].search([('bible_id', '=', bible_id.id),
+                                                           ('sequence', '=', s_book_id.sequence)]):
+                    self._sourcing_b_c(bible_id, s_book_id)
+                else:
+                    if request.env['openbiblica.book'].search([('bible_id', '=', bible_id.id),
+                                                           ('sequence', '=', s_book_id.sequence)]).source_id.id != s_book_id.id:
+                        self._sourcing(request.env['openbiblica.book'].search([('bible_id', '=', bible_id.id),
+                                                           ('sequence', '=', s_book_id.sequence)]), s_book_id)
+            s_book_ids = [j for j in s_bible_id.book_ids if j.chapter_ids]
+            s_book_id = s_book_ids[0]
+            if not s_book_id:
+                return request.redirect('/bible/%s' % slug(bible_id))
+            values = {
+                's_chapter_id': s_book_id.chapter_ids[0].id,
+                'book_id': request.env['openbiblica.book'].search([('bible_id', '=', bible_id.id),
+                                                                  ('sequence', '=', s_book_id.sequence)]).id,
+                'bible_id': bible_id.id,
+            }
+            return request.render("openbiblica.sourcing", values)
+        return request.redirect('/bible/%s' % slug(bible_id))
 
     @http.route('/source/c/<int:book>', type='http', auth="user", website=True)
     def source_book(self, book=0):
@@ -670,59 +670,58 @@ class WebsiteInstaller(http.Controller):
     @http.route(['/copy/c/source/<model("openbiblica.book"):book_id>/<model("openbiblica.book"):source_id>'], type='http',
                 auth='user', website=True)
     def copy_book_source(self, book_id=0, source_id=0):
-        if book_id.create_id != request.env.user or request.env.user not in book_id.bible_id.team_ids:
-            return request.redirect(request.httprequest.referrer)
-        self._copy_book_source(book_id, source_id)
-        if not source_id.chapter_ids:
-            return request.redirect('/book/%s' % slug(book_id))
-        values = {
-            's_chapter_id': source_id.chapter_ids[0].id,
-            'book_id': book_id.id,
-        }
-        return request.render("openbiblica.copying", values)
+        if book_id.create_id == request.env.user or request.env.user in book_id.bible_id.team_ids:
+            self._copy_book_source(book_id, source_id)
+            if not source_id.chapter_ids:
+                return request.redirect('/book/%s' % slug(book_id))
+            values = {
+                's_chapter_id': source_id.chapter_ids[0].id,
+                'book_id': book_id.id,
+            }
+            return request.render("openbiblica.copying", values)
+        return request.redirect(request.httprequest.referrer)
 
     @http.route(['/copy/b/source/<model("openbiblica.bible"):bible_id>/<model("openbiblica.bible"):source_id>'], type='http',
                 auth='user', website=True)
     def copy_bible_source(self, bible_id=0, source_id=0):
-        if bible_id.create_id != request.env.user or request.env.user not in bible_id.team_ids:
-            return request.redirect(request.httprequest.referrer)
-        self._copy_bible_source(bible_id, source_id)
-        if not source_id.book_ids:
-            return request.redirect('/bible/%s' % slug(bible_id))
+        if bible_id.create_id == request.env.user or request.env.user in bible_id.team_ids:
+            self._copy_bible_source(bible_id, source_id)
+            if not source_id.book_ids:
+                return request.redirect('/bible/%s' % slug(bible_id))
 
-        for s_book_id in source_id.book_ids:
-            if not request.env['openbiblica.book'].search([('bible_id', '=', bible_id.id),
-                                                       ('sequence', '=', s_book_id.sequence)]):
-                self._copying_b_c(bible_id, s_book_id)
-            else:
-                self._copy_book_source(request.env['openbiblica.book'].search([('bible_id', '=', bible_id.id),
-                                                                              ('sequence', '=', s_book_id.sequence)]), s_book_id)
-        s_book_ids = [j for j in source_id.book_ids if j.chapter_ids]
-        s_book_id = s_book_ids[0]
-        if not s_book_id:
-            return request.redirect('/bible/%s' % slug(bible_id))
-        values = {
-            's_chapter_id': s_book_id.chapter_ids[0].id,
-            'book_id': request.env['openbiblica.book'].search([('bible_id', '=', bible_id.id), ('sequence', '=', s_book_id.sequence)]).id,
-            'bible_id': bible_id.id,
-        }
-        return request.render("openbiblica.copying", values)
+            for s_book_id in source_id.book_ids:
+                if not request.env['openbiblica.book'].search([('bible_id', '=', bible_id.id),
+                                                           ('sequence', '=', s_book_id.sequence)]):
+                    self._copying_b_c(bible_id, s_book_id)
+                else:
+                    self._copy_book_source(request.env['openbiblica.book'].search([('bible_id', '=', bible_id.id),
+                                                                                  ('sequence', '=', s_book_id.sequence)]), s_book_id)
+            s_book_ids = [j for j in source_id.book_ids if j.chapter_ids]
+            s_book_id = s_book_ids[0]
+            if not s_book_id:
+                return request.redirect('/bible/%s' % slug(bible_id))
+            values = {
+                's_chapter_id': s_book_id.chapter_ids[0].id,
+                'book_id': request.env['openbiblica.book'].search([('bible_id', '=', bible_id.id), ('sequence', '=', s_book_id.sequence)]).id,
+                'bible_id': bible_id.id,
+            }
+            return request.render("openbiblica.copying", values)
+        return request.redirect(request.httprequest.referrer)
 
     @http.route(['/copy/p/source/<model("openbiblica.chapter"):chapter_id>/<model("openbiblica.chapter"):source_id>'], type='http',
                 auth='user', website=True)
     def copy_chapter_source(self, chapter_id=0, source_id=0):
-        if chapter_id.create_id != request.env.user or request.env.user not in chapter_id.bible_id.team_ids:
-            return request.redirect(request.httprequest.referrer)
-        self._copy_chapter_source(chapter_id, source_id)
-        if not source_id.verse_ids:
-            return request.redirect(request.httprequest.referrer)
-        for s_verse_id in source_id.verse_ids:
-            if not request.env['openbiblica.verse'].search([('chapter_id', '=', chapter_id.id),
-                                                    ('sequence', '=', s_verse_id.sequence)]):
-                self._copying_p_l(chapter_id, s_verse_id)
-            else:
-                self._copy_verse_source(request.env['openbiblica.verse'].search([('chapter_id', '=', chapter_id.id),
-                                                                        ('sequence', '=', s_verse_id.sequence)]), s_verse_id)
+        if chapter_id.create_id == request.env.user or request.env.user in chapter_id.bible_id.team_ids:
+            self._copy_chapter_source(chapter_id, source_id)
+            if not source_id.verse_ids:
+                return request.redirect(request.httprequest.referrer)
+            for s_verse_id in source_id.verse_ids:
+                if not request.env['openbiblica.verse'].search([('chapter_id', '=', chapter_id.id),
+                                                        ('sequence', '=', s_verse_id.sequence)]):
+                    self._copying_p_l(chapter_id, s_verse_id)
+                else:
+                    self._copy_verse_source(request.env['openbiblica.verse'].search([('chapter_id', '=', chapter_id.id),
+                                                                            ('sequence', '=', s_verse_id.sequence)]), s_verse_id)
         return request.redirect(request.httprequest.referrer)
 
     @http.route(['/copy/l/source/<model("openbiblica.verse"):verse_id>/<model("openbiblica.verse"):source_id>'], type='http',
@@ -838,45 +837,44 @@ class WebsiteInstaller(http.Controller):
     @http.route(['/remove/c/source/<model("openbiblica.book"):book_id>/<model("openbiblica.book"):source_id>'], type='http',
                 auth='user', website=True)
     def remove_book_source(self, book_id=0, source_id=0):
-        if book_id.create_id != request.env.user or request.env.user not in book_id.bible_id.team_ids:
-            return request.redirect(request.httprequest.referrer)
-        if not source_id.chapter_ids:
-            self._remove_book_source(book_id, source_id)
-            return request.redirect('/book/%s' % slug(book_id))
-        values = {
-            's_chapter_id': source_id.chapter_ids[0].id,
-            'book_id': book_id.id,
-        }
-        return request.render("openbiblica.remove_source", values)
+        if book_id.create_id == request.env.user or request.env.user in book_id.bible_id.team_ids:
+            if not source_id.chapter_ids:
+                self._remove_book_source(book_id, source_id)
+                return request.redirect('/book/%s' % slug(book_id))
+            values = {
+                's_chapter_id': source_id.chapter_ids[0].id,
+                'book_id': book_id.id,
+            }
+            return request.render("openbiblica.remove_source", values)
+        return request.redirect(request.httprequest.referrer)
 
     @http.route(['/remove/b/source/<model("openbiblica.bible"):bible_id>/<model("openbiblica.bible"):source_id>'], type='http',
                 auth='user', website=True)
     def remove_bible_source(self, bible_id=0, source_id=0):
-        if bible_id.create_id != request.env.user or request.env.user not in bible_id.team_ids:
-            return request.redirect(request.httprequest.referrer)
-        if not source_id.book_ids:
-            return request.redirect('/bible/%s' % slug(bible_id))
-
-        s_book_id = source_id.book_ids[0]
-        while s_book_id.sequence < len(source_id.book_ids) + 1:
-            while request.env['openbiblica.book'].search([('bible_id', '=', bible_id.id),
-                                                            ('source_ids', 'in', s_book_id.id)]):
-                book_id = request.env['openbiblica.book'].search([('bible_id', '=', bible_id.id),
-                                                                 ('source_ids', 'in', s_book_id.id)])[0]
-                if s_book_id.chapter_ids:
-                    values = {
-                        's_chapter_id': s_book_id.chapter_ids[0].id,
-                        'book_id': book_id.id,
-                        'bible_id': bible_id.id,
-                    }
-                    return request.render("openbiblica.remove_source", values)
-                self._remove_book_source(book_id, s_book_id)
+        if bible_id.create_id == request.env.user or request.env.user in bible_id.team_ids:
+            if not source_id.book_ids:
+                return request.redirect('/bible/%s' % slug(bible_id))
+            s_book_id = source_id.book_ids[0]
+            while s_book_id.sequence < len(source_id.book_ids) + 1:
+                while request.env['openbiblica.book'].search([('bible_id', '=', bible_id.id),
+                                                                ('source_ids', 'in', s_book_id.id)]):
+                    book_id = request.env['openbiblica.book'].search([('bible_id', '=', bible_id.id),
+                                                                     ('source_ids', 'in', s_book_id.id)])[0]
+                    if s_book_id.chapter_ids:
+                        values = {
+                            's_chapter_id': s_book_id.chapter_ids[0].id,
+                            'book_id': book_id.id,
+                            'bible_id': bible_id.id,
+                        }
+                        return request.render("openbiblica.remove_source", values)
+                    self._remove_book_source(book_id, s_book_id)
+                    continue
+                s_book_id = request.env['openbiblica.book'].search([('bible_id', '=', s_book_id.bible_id.id),
+                                                                   ('sequence', '=', s_book_id.sequence + 1)])
                 continue
-            s_book_id = request.env['openbiblica.book'].search([('bible_id', '=', s_book_id.bible_id.id),
-                                                               ('sequence', '=', s_book_id.sequence + 1)])
-            continue
-        self._remove_bible_source(bible_id, source_id)
-        return request.redirect('/bible/%s' % slug(bible_id))
+            self._remove_bible_source(bible_id, source_id)
+            return request.redirect('/bible/%s' % slug(bible_id))
+        return request.redirect(request.httprequest.referrer)
 
     @http.route(['/remove/dict/<model("openbiblica.book"):book_id>'], type='http', auth='user', website=True)
     def remove_book_dictionary(self, book_id=0):
