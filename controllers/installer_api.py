@@ -177,7 +177,7 @@ class WebsiteInstaller(http.Controller):
                  ], type='http', auth="user", website=True)
     def install_usfm(self, book_id=0, bible_id=0):
         user_id = request.env.user
-        if book_id.create_id == user_id:
+        if book_id.create_id == user_id or user_id in book_id.bible_id.team_ids:
             if book_id.chapter_ids:
                 if bible_id:
                     return request.redirect('/cleaning/%s/%s' % (slug(book_id), slug(bible_id)))
@@ -214,7 +214,7 @@ class WebsiteInstaller(http.Controller):
                  ], type='http', auth="user", website=True)
     def cont_install_usfm(self, book_id=0, bible_id=0):
         user_id = request.env.user
-        if book_id.create_id == user_id:
+        if book_id.create_id == user_id or user_id in book_id.bible_id.team_ids:
             status, headers, content = request.env['ir.http'].sudo().binary_content(
                 model='openbiblica.book', id=book_id.id, field='rest')
             text = base64.b64decode(content).decode('utf-8')
@@ -259,7 +259,7 @@ class WebsiteInstaller(http.Controller):
                  '/cleaning/<model("openbiblica.book"):book_id>/<model("openbiblica.bible"):bible_id>'
                  ], type='http', auth="user", website=True)
     def cleaning(self, book_id=0, bible_id=0):
-        if book_id.create_id == request.env.user:
+        if book_id.create_id == request.env.user or request.env.user in book_id.bible_id.team_ids:
             values = {
                 'chapter_id': book_id.chapter_ids[0].id,
                 'book_id': book_id,
@@ -270,7 +270,7 @@ class WebsiteInstaller(http.Controller):
 
     @http.route(['/install/b/usfm/<model("openbiblica.bible"):bible_id>'], type='http', auth="user", website=True)
     def b_install_usfm(self, bible_id=0):
-        if bible_id.create_id == request.env.user:
+        if bible_id.create_id == request.env.user or request.env.user in bible_id.team_ids:
             book_ids = request.env['openbiblica.book'].search([
                 ('bible_id', '=', bible_id.id),
                 ('is_installed', '=', False)])
@@ -396,7 +396,7 @@ class WebsiteInstaller(http.Controller):
     @http.route(['/sourcing/c'], type='http', auth="user", website=True)
     def sourcing_c(self, **kwargs):
         book_id = request.env['openbiblica.book'].search([('id', '=', kwargs.get('book_id'))])
-        if book_id.create_id != request.env.user:
+        if book_id.create_id != request.env.user or request.env.user not in book_id.bible_id.team_ids:
             return request.redirect('/book/%s' % slug(book_id))
         s_book_id = request.env['openbiblica.book'].search([('id', '=', kwargs.get('source_book_id'))])
         if book_id.source_id != s_book_id:
@@ -414,7 +414,7 @@ class WebsiteInstaller(http.Controller):
     @http.route(['/sourcing/b'], type='http', auth="user", website=True)
     def sourcing_b(self, **kwargs):
         bible_id = request.env['openbiblica.bible'].search([('id', '=', kwargs.get('bible_id'))])
-        if bible_id.create_id != request.env.user:
+        if bible_id.create_id != request.env.user or request.env.user not in bible_id.team_ids:
             return request.redirect('/bible/%s' % slug(bible_id))
         s_bible_id = request.env['openbiblica.bible'].search([('id', '=', kwargs.get('bible'))])
         if bible_id.source_id != s_bible_id:
@@ -670,7 +670,7 @@ class WebsiteInstaller(http.Controller):
     @http.route(['/copy/c/source/<model("openbiblica.book"):book_id>/<model("openbiblica.book"):source_id>'], type='http',
                 auth='user', website=True)
     def copy_book_source(self, book_id=0, source_id=0):
-        if book_id.create_id != request.env.user:
+        if book_id.create_id != request.env.user or request.env.user not in book_id.bible_id.team_ids:
             return request.redirect(request.httprequest.referrer)
         self._copy_book_source(book_id, source_id)
         if not source_id.chapter_ids:
@@ -684,7 +684,7 @@ class WebsiteInstaller(http.Controller):
     @http.route(['/copy/b/source/<model("openbiblica.bible"):bible_id>/<model("openbiblica.bible"):source_id>'], type='http',
                 auth='user', website=True)
     def copy_bible_source(self, bible_id=0, source_id=0):
-        if bible_id.create_id != request.env.user:
+        if bible_id.create_id != request.env.user or request.env.user not in bible_id.team_ids:
             return request.redirect(request.httprequest.referrer)
         self._copy_bible_source(bible_id, source_id)
         if not source_id.book_ids:
@@ -711,7 +711,7 @@ class WebsiteInstaller(http.Controller):
     @http.route(['/copy/p/source/<model("openbiblica.chapter"):chapter_id>/<model("openbiblica.chapter"):source_id>'], type='http',
                 auth='user', website=True)
     def copy_chapter_source(self, chapter_id=0, source_id=0):
-        if chapter_id.create_id != request.env.user:
+        if chapter_id.create_id != request.env.user or request.env.user not in chapter_id.bible_id.team_ids:
             return request.redirect(request.httprequest.referrer)
         self._copy_chapter_source(chapter_id, source_id)
         if not source_id.verse_ids:
@@ -728,7 +728,7 @@ class WebsiteInstaller(http.Controller):
     @http.route(['/copy/l/source/<model("openbiblica.verse"):verse_id>/<model("openbiblica.verse"):source_id>'], type='http',
                 auth='user', website=True)
     def copy_verse_source(self, verse_id=0, source_id=0):
-        if verse_id.create_id == request.env.user:
+        if verse_id.create_id == request.env.user or request.env.user in verse_id.bible_id.team_ids:
             self._copy_verse_source(verse_id, source_id)
         return request.redirect(request.httprequest.referrer)
 
@@ -838,7 +838,7 @@ class WebsiteInstaller(http.Controller):
     @http.route(['/remove/c/source/<model("openbiblica.book"):book_id>/<model("openbiblica.book"):source_id>'], type='http',
                 auth='user', website=True)
     def remove_book_source(self, book_id=0, source_id=0):
-        if book_id.create_id != request.env.user:
+        if book_id.create_id != request.env.user or request.env.user not in book_id.bible_id.team_ids:
             return request.redirect(request.httprequest.referrer)
         if not source_id.chapter_ids:
             self._remove_book_source(book_id, source_id)
@@ -852,7 +852,7 @@ class WebsiteInstaller(http.Controller):
     @http.route(['/remove/b/source/<model("openbiblica.bible"):bible_id>/<model("openbiblica.bible"):source_id>'], type='http',
                 auth='user', website=True)
     def remove_bible_source(self, bible_id=0, source_id=0):
-        if bible_id.create_id != request.env.user:
+        if bible_id.create_id != request.env.user or request.env.user not in bible_id.team_ids:
             return request.redirect(request.httprequest.referrer)
         if not source_id.book_ids:
             return request.redirect('/bible/%s' % slug(bible_id))
@@ -880,35 +880,32 @@ class WebsiteInstaller(http.Controller):
 
     @http.route(['/remove/dict/<model("openbiblica.book"):book_id>'], type='http', auth='user', website=True)
     def remove_book_dictionary(self, book_id=0):
-        if book_id.create_id != request.env.user:
-            return request.redirect(request.httprequest.referrer)
-        book_id['dictionary_id'] = None
+        if book_id.create_id == request.env.user or request.env.user in bible_id.team_ids:
+            book_id['dictionary_id'] = None
         return request.redirect(request.httprequest.referrer)
 
     @http.route(['/select/dict/<model("openbiblica.book"):book_id>'], type='http', auth='user', website=True)
     def select_book_dictionary(self, book_id=0, **kwargs):
-        if book_id.create_id != request.env.user:
-            return request.redirect(request.httprequest.referrer)
-        if not kwargs.get('dictio_id'):
-            return request.redirect(request.httprequest.referrer)
-        book_id['dictionary_id'] = kwargs.get('dictio_id')
+        if book_id.create_id == request.env.user or request.env.user in book_id.bible_id.team_ids:
+            if not kwargs.get('dictio_id'):
+                return request.redirect(request.httprequest.referrer)
+            book_id['dictionary_id'] = kwargs.get('dictio_id')
         return request.redirect(request.httprequest.referrer)
 
     @http.route(['/select/default/dict/<model("openbiblica.bible"):bible_id>'], type='http', auth='user', website=True)
     def select_bible_dictionary(self, bible_id=0, **kwargs):
-        if bible_id.create_id != request.env.user:
-            return request.redirect(request.httprequest.referrer)
-        if not kwargs.get('dictionary_id'):
-            bible_id['default_dictionary_id'] = None
-            return request.redirect(request.httprequest.referrer)
-        bible_id['default_dictionary_id'] = kwargs.get('dictionary_id')
+        if bible_id.create_id == request.env.user or request.env.user in bible_id.team_ids:
+            if not kwargs.get('dictionary_id'):
+                bible_id['default_dictionary_id'] = None
+                return request.redirect(request.httprequest.referrer)
+            bible_id['default_dictionary_id'] = kwargs.get('dictionary_id')
         return request.redirect(request.httprequest.referrer)
 
     @http.route(['/install/dictionary/<model("openbiblica.dictionary"):dictionary_id>',
                  ], type='http', auth="user", website=True)
     def install_dictionary(self, dictionary_id=0):
         user_id = request.env.user
-        if dictionary_id.create_id == user_id:
+        if dictionary_id.create_id == user_id or user_id in dictionary_id.team_ids:
             status, headers, content = request.env['ir.http'].sudo().binary_content(
                 model='openbiblica.dictionary', id=dictionary_id.id, field='files')
             contents = json.loads(base64.b64decode(content).decode('utf-8'))
@@ -949,26 +946,24 @@ class WebsiteInstaller(http.Controller):
 
     @http.route(['/default/bible/<model("openbiblica.dictionary"):dictionary_id>'], type='http', auth='user', website=True)
     def select_default_dictionary(self, dictionary_id=0, **kwargs):
-        if dictionary_id.create_id != request.env.user:
-            return request.redirect(request.httprequest.referrer)
-        if not kwargs.get('biblica_id'):
-            dictionary_id['default_bible_id'] = None
-            return request.redirect(request.httprequest.referrer)
-        dictionary_id['default_bible_id'] = kwargs.get('biblica_id')
+        if dictionary_id.create_id == request.env.user or request.env.user in dictionary_id.team_ids:
+            if not kwargs.get('biblica_id'):
+                dictionary_id['default_bible_id'] = None
+                return request.redirect(request.httprequest.referrer)
+            dictionary_id['default_bible_id'] = kwargs.get('biblica_id')
         return request.redirect(request.httprequest.referrer)
 
-    @http.route(['/reference/<model("openbiblica.dictionary"):dictionary_id>'], type='http', auth='user', website=True)
-    def reference(self, dictionary_id=0, **kwargs):
-        if dictionary_id.create_id != request.env.user:
-            return request.redirect(request.httprequest.referrer)
-        if not kwargs.get('dict_reference_id'):
-            dictionary_id['dict_reference_id'] = None
-            return request.redirect(request.httprequest.referrer)
-        dictionary_id['dict_reference_id'] = kwargs.get('dict_reference_id')
+    @http.route(['/reference/<model("openbiblica.dictionary"):dict_lang_id>'], type='http', auth='user', website=True)
+    def reference_dict(self, dict_lang_id=0, **kwargs):
+        if dict_lang_id.create_id == request.env.user or request.env.user in dict_lang_id.team_ids:
+            if not kwargs.get('dict_reference_id'):
+                dict_lang_id['dict_reference_id'] = None
+                return request.redirect(request.httprequest.referrer)
+            dict_lang_id['dict_reference_id'] = kwargs.get('dict_reference_id')
         return request.redirect(request.httprequest.referrer)
 
     @http.route(['/wordmapping/'], type='http', auth='user', website=True)
-    def reference(self, **kwargs):
+    def wordmapping(self, **kwargs):
         values = {
             'user_id': request.env.user,
         }

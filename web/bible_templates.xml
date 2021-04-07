@@ -99,15 +99,15 @@
     <template id="view_biblica" name="Biblica">
         <t t-call="openbiblica.openbiblica_layout">
             <div class="container">
-                <div class="o_edit_mode" t-if="bible_id.create_id == user_id"/>
+                <div class="o_edit_mode" t-if="bible_id.create_id == user_id or user_id in bible_id.team_ids"/>
                 <table class="table table-sm" id="biblica">
                     <tr id="bible">
                         <td width="20%"><h1>Bible Name</h1></td>
                         <td name='source_biblica'/>
                         <td>
-                            <h1 t-esc="bible_id.name"/>
-                            <t t-if="bible_id.create_id == user_id" name='show_items' style="display:none;">
-                                <span name='show_items' style="display:none;" t-if="bible_id.create_id == user_id">
+                            <h1>
+                                <span t-esc="bible_id.name"/>
+                                <span name='show_items' style="display:none;" t-if="bible_id.create_id == user_id" class="mb8">
                                     <form t-attf-action="/edit/bible" method="post" role="form" class="tag_text js_website_submit_form">
                                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                         <input type="hidden" name="bible_id" t-att-value="bible_id.id"/>
@@ -115,7 +115,7 @@
                                         <a role="button" t-attf-href="/remove/bible/#{slug(bible_id)}" class="btn btn-sm btn-danger">Remove this project</a>
                                     </form>
                                 </span>
-                            </t>
+                            </h1>
                         </td>
                     </tr>
                     <tr id="description">
@@ -127,6 +127,27 @@
                         <td>Author</td>
                         <td name='source_author'/>
                         <td><span t-field="bible_id.create_id"/></td>
+                    </tr>
+                    <tr id="team">
+                        <td>Team</td>
+                        <td name='source_team'/>
+                        <td>
+                            <form t-if='bible_id.create_id == user_id' t-attf-action="/add/bibleteam"
+                                  method="post" role="form" class="tag_text js_website_submit_form" enctype="multipart/form-data">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <input type="hidden" name="bible_id" t-att-value="bible_id.id"/>
+                                <input type="text" name="email" required="True" class="mt4 mb4" placeholder="Email Address"/>
+                                <button type="submit" class="btn btn-primary btn-sm">Add New Team</button>
+                            </form>
+                            <t t-foreach="bible_id.team_ids" t-as="team">
+                                <h5>
+                                    <span t-esc="team.name"/>
+                                    <span class="mb8" t-if="bible_id.create_id == user_id" name='show_items' style="display:none;">
+                                        <a role="button" t-attf-href="/remove/bibleteam/#{slug(bible_id)}/#{slug(team)}" class="btn btn-sm btn-danger">Remove</a>
+                                    </span>
+                                </h5>
+                            </t>
+                        </td>
                     </tr>
                     <tr id="lang">
                         <td>Language</td>
@@ -142,7 +163,7 @@
                         </td>
                     </tr>
 -->
-                    <tr id="default_dictionary " t-if="bible_id.create_id == user_id and bible_id.lang_id.allow_dictionary" groups="website.group_website_publisher">
+                    <tr id="default_dictionary " t-if="bible_id.create_id == user_id or user_id in bible_id.team_ids and bible_id.lang_id.allow_dictionary">
                         <td>Default Dictionary</td>
                         <td name='default_dictionary'/>
                         <td>
@@ -156,7 +177,7 @@
                         <td>Books</td>
                         <td name='source_books'/>
                         <td>
-                            <form t-if='bible_id.create_id == user_id' t-attf-action="/add/book"
+                            <form t-if='bible_id.create_id == user_id or user_id in bible_id.team_ids' t-attf-action="/add/book"
                                   method="post" role="form" class="tag_text js_website_submit_form" enctype="multipart/form-data">
                                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                 <input type="hidden" name="bible_id" t-att-value="bible_id.id"/>
@@ -164,18 +185,16 @@
                                 <button type="submit" class="btn btn-primary btn-sm">Add New</button>
                             </form>
                             <t t-foreach="bible_id.book_ids" t-as="book">
-                                <a role="button" class="btn btn-sm btn-link"
-                                   t-attf-href="/book/#{slug(book)}"><h5 t-esc="book.name"/></a><br/>
-                                <div class="mb32" t-if="bible_id.create_id == user_id" name='show_items' style="display:none;">
-                                    <div class="mb8">
-                                        <a role="button" t-attf-href="/up/book/#{slug(book)}" class="btn btn-primary">Up</a>
-                                        <a role="button" t-attf-href="/down/book/#{slug(book)}" class="btn btn-primary">Down</a>
-                                    </div>
-                                    <div class="mb8">
+                                <h5>
+                                    <a role="button" class="btn btn-sm btn-link"
+                                       t-attf-href="/book/#{slug(book)}"><h5 t-esc="book.name"/></a>
+                                    <span class="mb8" t-if="bible_id.create_id == user_id or user_id in bible_id.team_ids" name='show_items' style="display:none;">
+                                        <a role="button" t-attf-href="/up/book/#{slug(book)}" class="btn btn-sm btn-primary">Up</a>
+                                        <a role="button" t-attf-href="/down/book/#{slug(book)}" class="btn btn-sm btn-primary">Down</a>
                                         <a role="button" t-attf-href="/edit/book/#{slug(book)}" class="btn btn-sm btn-warning">Edit</a>
                                         <a role="button" t-attf-href="/remove/book/#{slug(book)}" class="btn btn-sm btn-danger">Remove</a>
-                                    </div>
-                                </div>
+                                    </span>
+                                </h5>
                             </t>
                         </td>
                     </tr>

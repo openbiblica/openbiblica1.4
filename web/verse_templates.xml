@@ -5,7 +5,7 @@
         <t t-call="openbiblica.openbiblica_layout">
             <div class="container">
                 <div class="o_source_menu" t-if="source_id"/>
-                <div class="o_edit_mode" t-if="verse_id.create_id == user_id"/>
+                <div class="o_edit_mode" t-if="verse_id.create_id == user_id or user_id in verse_id.bible_id.team_ids"/>
                 <div class="o_translate_content" t-if="book_id.create_id.id != user_id.id">
                     <input type="hidden" name="t_book_id" t-att-value="book_id.id"/>
                     <input type="hidden" name="t_book_name" t-att-value="book_id.name"/>
@@ -21,7 +21,7 @@
                         <t t-set="word_ids" t-value="s_word_ids"/>
                     </t>
                 </div>
-                <table t-if="verse_id.create_id == user_id" class="table" id="Selections" name='show_items' style="display:none;">
+                <table t-if="verse_id.create_id == user_id or user_id in verse_id.bible_id.team_ids" class="table" id="Selections" name='show_items' style="display:none;">
                     <tr t-if="book_id.source_ids" name="source_item">
                         <td>Source </td>
                         <td>
@@ -101,7 +101,7 @@
     <template id="verse_editor">
         <div id="editor">
             <form id="edit_verse" t-attf-action="/edit/verse" method="post" role="form"
-                  t-if="verse_id.create_id == user_id" class="tag_text js_website_submit_form">
+                  t-if="verse_id.create_id == user_id or user_id in verse_id.bible_id.team_ids" class="tag_text js_website_submit_form">
                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                 <input type="hidden" name="verse_id" t-att-value="verse_id.id"/>
                 <p>

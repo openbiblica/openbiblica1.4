@@ -107,29 +107,48 @@
     <template id="view_dictionary" name="Dictionary">
         <t t-call="openbiblica.openbiblica_layout">
             <div class="container">
-                <div class="o_edit_mode" t-if="dictionary_id.create_id == user_id"/>
+                <div class="o_edit_mode" t-if="dictionary_id.create_id == user_id or user_id in dictionary_id.team_ids"/>
                 <table class="table table-sm" id="dictionary">
                     <tr id="dictionary">
                         <td width="20%"><h1>Dictionary Name</h1></td>
                         <td name='source_dictionary'/>
                         <td>
                             <h1 t-esc="dictionary_id.name"/>
-                            <t t-if="dictionary_id.create_id == user_id" name='show_items' style="display:none;">
-                                <span name='show_items' style="display:none;" t-if="dictionary_id.create_id == user_id">
-                                    <form t-attf-action="/edit/dictionary" method="post" role="form" class="tag_text js_website_submit_form">
-                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                                        <input type="hidden" name="dictionary_id" t-att-value="dictionary_id.id"/>
-                                        <button type="submit" class="btn btn-warning btn-sm">Edit Project Title</button>
-                                        <a role="button" t-attf-href="/remove/dictionary/#{slug(dictionary_id)}" class="btn btn-sm btn-danger">Remove this project</a>
-                                    </form>
-                                </span>
-                            </t>
+                            <span name='show_items' style="display:none;" t-if="dictionary_id.create_id == user_id">
+                                <form t-attf-action="/edit/dictionary" method="post" role="form" class="tag_text js_website_submit_form">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <input type="hidden" name="dictionary_id" t-att-value="dictionary_id.id"/>
+                                    <button type="submit" class="btn btn-warning btn-sm">Edit Project Title</button>
+                                    <a role="button" t-attf-href="/remove/dictionary/#{slug(dictionary_id)}" class="btn btn-sm btn-danger">Remove this project</a>
+                                </form>
+                            </span>
                         </td>
                     </tr>
                     <tr id="author">
                         <td>Author</td>
                         <td name='source_author'/>
                         <td><span t-field="dictionary_id.create_id"/></td>
+                    </tr>
+                    <tr id="team">
+                        <td>Team</td>
+                        <td name='source_team'/>
+                        <td>
+                            <form t-if='dictionary_id.create_id == user_id' t-attf-action="/add/dictionaryteam"
+                                  method="post" role="form" class="tag_text js_website_submit_form" enctype="multipart/form-data">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <input type="hidden" name="dictionary_id" t-att-value="dictionary_id.id"/>
+                                <input type="text" name="email" required="True" class="mt4 mb4" placeholder="Email Address"/>
+                                <button type="submit" class="btn btn-primary btn-sm">Add New Team</button>
+                            </form>
+                            <t t-foreach="dictionary_id.team_ids" t-as="team">
+                                <h5>
+                                    <span t-esc="team.name"/>
+                                    <span class="mb8" t-if="dictionary_id.create_id == user_id" name='show_items' style="display:none;">
+                                        <a role="button" t-attf-href="/remove/dictionaryteam/#{slug(dictionary_id)}/#{slug(team)}" class="btn btn-sm btn-danger">Remove</a>
+                                    </span>
+                                </h5>
+                            </t>
+                        </td>
                     </tr>
                     <tr id="source_lang">
                         <td>Source Language</td>
@@ -148,7 +167,7 @@
                             <a t-if="dictionary_id.default_bible_id" target="_blank"
                                t-attf-href="/bible/#{slug(dictionary_id.default_bible_id)}">
                                 <span t-field="dictionary_id.default_bible_id.name"/></a>
-                            <div t-if="dictionary_id.create_id == user_id" name='show_items' style="display:none;">
+                            <div t-if="dictionary_id.create_id == user_id or user_id in dictionary_id.team_ids" name='show_items' style="display:none;">
                                 <form t-attf-action="/default/bible/#{slug(dictionary_id)}" method="post" role="form" class="o_default_bible">
                                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                     <input type="hidden" name="source_lang_id" t-att-value="dictionary_id.source_lang_id.id"/>
@@ -171,7 +190,7 @@
                             <a t-if="dictionary_id.dict_reference_id" target="_blank"
                                t-attf-href="/dictionary/#{slug(dictionary_id.dict_reference_id)}">
                                 <span t-field="dictionary_id.dict_reference_id.name"/></a>
-                            <div t-if="dictionary_id.create_id == user_id" name='show_items' style="display:none;">
+                            <div t-if="dictionary_id.create_id == user_id or user_id in dictionary_id.team_ids" name='show_items' style="display:none;">
                                 <form t-attf-action="/reference/#{slug(dictionary_id)}" method="post" role="form" class="o_dict_reference">
                                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                     <input type="hidden" name="dict_lang_id" t-att-value="dictionary_id.source_lang_id.id"/>
@@ -187,7 +206,7 @@
                             </div>
                         </td>
                     </tr>
-                    <tr id="install" t-if="dictionary_id.create_id == user_id and dictionary_id.files">
+                    <tr id="install" t-if="dictionary_id.create_id == user_id or user_id in dictionary_id.team_ids and dictionary_id.files">
                         <td>Install Dictionary</td>
                         <td name='install_dict'/>
                         <td>
@@ -207,7 +226,7 @@
     <template id="view_dictionary_search" name="Search Dictionary Result">
         <t t-call="openbiblica.openbiblica_layout">
             <div class="container">
-                <div class="o_edit_mode" t-if="dictionary_id.create_id == user_id"/>
+                <div class="o_edit_mode" t-if="dictionary_id.create_id == user_id or user_id in dictionary_id.team_ids"/>
                 <div class="row">
                     <div class="col-lg-12 pt16 pb16" style="text-align: center;">
                         <h4><font style="font-size: 62px;">
@@ -345,7 +364,7 @@
     <template id="view_meaning" name="meaning">
         <t t-call="openbiblica.openbiblica_layout">
             <div class="container">
-                <div class="o_edit_mode" t-if="meaning_id.create_id == user_id"/>
+                <div class="o_edit_mode" t-if="meaning_id.create_id == user_id or user_id in meaning_id.dictionary_id.team_ids"/>
                 <div class="row">
                     <div class="col-lg-12 pt16 pb16" style="text-align: center;">
                         <h4><font style="font-size: 62px;">

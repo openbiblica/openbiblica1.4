@@ -71,7 +71,7 @@ class WebsiteBiblica(http.Controller):
     @http.route('/edit/bible', type='http', auth="user", website=True)
     def edit_biblica(self, **kwargs):
         bible_id = request.env['openbiblica.bible'].search([("id", "=", kwargs.get('bible_id'))])
-        if bible_id.create_id == request.env.user:
+        if bible_id.create_id == request.env.user or request.env.user in bible_id.team_ids:
             values = {
                 'bible_id': bible_id,
                 'langs': request.env['openbiblica.lang'].sudo().search([]),
@@ -112,7 +112,7 @@ class WebsiteBiblica(http.Controller):
     @http.route(['/add/book'], type='http', auth="user", website=True)
     def add_book(self, **kwargs):
         bible_id = request.env['openbiblica.bible'].sudo().search([('id', '=', kwargs.get('bible_id'))])
-        if bible_id.create_id == request.env.user:
+        if bible_id.create_id == request.env.user or request.env.user in bible_id.team_ids:
             books = request.env['openbiblica.book'].sudo().search([('bible_id', '=', bible_id.id)])
             sequence = len(books) + 1
             values = {
@@ -128,7 +128,7 @@ class WebsiteBiblica(http.Controller):
     def save_book(self, **kwargs):
         bible_id = request.env['openbiblica.bible'].sudo().search([('id', '=', kwargs.get('bible_id'))])
         user_id = request.env.user
-        if bible_id.create_id == user_id:
+        if bible_id.create_id == user_id or user_id in bible_id.team_ids:
             if kwargs.get('book_id'):
                 book_id = request.env['openbiblica.book'].sudo().search([('id', '=', kwargs.get('book_id'))])
                 book_id.update({
@@ -171,7 +171,7 @@ class WebsiteBiblica(http.Controller):
     @http.route(['/up/book/<model("openbiblica.book"):book_id>'], type='http', auth="user", website=True)
     def up_book(self, book_id=0):
         bible_id = book_id.bible_id
-        if book_id.create_id == request.env.user:
+        if book_id.create_id == request.env.user or request.env.user in book_id.bible_id.team_ids:
             if book_id.sequence != 1:
                 seq = book_id.sequence
                 pseq = seq - 1
@@ -184,7 +184,7 @@ class WebsiteBiblica(http.Controller):
     @http.route(['/down/book/<model("openbiblica.book"):book_id>'], type='http', auth="user", website=True)
     def down_book(self, book_id=0):
         bible_id = book_id.bible_id
-        if book_id.create_id == request.env.user:
+        if book_id.create_id == request.env.user or request.env.user in book_id.bible_id.team_ids:
             if book_id.sequence != len(bible_id.book_ids):
                 seq = book_id.sequence
                 pseq = seq + 1
@@ -197,7 +197,7 @@ class WebsiteBiblica(http.Controller):
     @http.route(['/edit/book/<model("openbiblica.book"):book_id>'], type='http', auth="user", website=True)
     def edit_book(self, book_id=0):
         bible_id = book_id.bible_id
-        if book_id.create_id == request.env.user:
+        if book_id.create_id == request.env.user or request.env.user in book_id.bible_id.team_ids:
             values = {
                 'book_id': book_id,
                 'bible_id': bible_id,
@@ -207,7 +207,7 @@ class WebsiteBiblica(http.Controller):
 
     @http.route(['/remove/book/<model("openbiblica.book"):book_id>'], type='http', auth="user", website=True)
     def remove_book(self, book_id=0):
-        if book_id.create_id == request.env.user:
+        if book_id.create_id == request.env.user or request.env.user in book_id.bible_id.team_ids:
             bible_id = book_id.bible_id
             seq = book_id.sequence
             next_books = request.env['openbiblica.book'].search(
@@ -316,7 +316,7 @@ class WebsiteBiblica(http.Controller):
     def add_chapter(self, **kwargs):
         user_id = request.env.user
         book_id = request.env['openbiblica.book'].sudo().search([("id", "=", kwargs.get('book_id'))])
-        if book_id.create_id == user_id:
+        if book_id.create_id == user_id or user_id in book_id.bible_id.team_ids:
             seq = len(book_id.chapter_ids) + 1
             chapter_id = request.env['openbiblica.chapter'].sudo().create({
                 'name': kwargs.get('name'),
@@ -328,7 +328,7 @@ class WebsiteBiblica(http.Controller):
     @http.route(['/up/chapter/<model("openbiblica.chapter"):chapter_id>'], type='http', auth="user", website=True)
     def up_chapter(self, chapter_id=0):
         book_id = chapter_id.book_id
-        if chapter_id.create_id == request.env.user:
+        if chapter_id.create_id == request.env.user or request.env.user in chapter_id.bible_id.team_ids:
             if chapter_id.sequence != 1:
                 seq = chapter_id.sequence
                 pseq = seq - 1
@@ -341,7 +341,7 @@ class WebsiteBiblica(http.Controller):
     @http.route(['/down/chapter/<model("openbiblica.chapter"):chapter_id>'], type='http', auth="user", website=True)
     def down_chapter(self, chapter_id=0):
         book_id = chapter_id.book_id
-        if chapter_id.create_id == request.env.user:
+        if chapter_id.create_id == request.env.user or request.env.user in chapter_id.bible_id.team_ids:
             if chapter_id.sequence != len(book_id.chapter_ids):
                 seq = chapter_id.sequence
                 pseq = seq + 1
@@ -355,7 +355,7 @@ class WebsiteBiblica(http.Controller):
     def edit_chapter(self, **kwargs):
         chapter_id = request.env['openbiblica.chapter'].sudo().search([('id', '=', kwargs.get('chapter_id'))])
         book_id = chapter_id.book_id
-        if chapter_id.create_id == request.env.user:
+        if chapter_id.create_id == request.env.user or request.env.user in chapter_id.bible_id.team_ids:
             chapter_id.update({
                 'name': kwargs.get('name'),
             })
@@ -364,7 +364,7 @@ class WebsiteBiblica(http.Controller):
     @http.route(['/remove/chapter/<model("openbiblica.chapter"):chapter_id>'], type='http', auth="user", website=True)
     def remove_chapter(self, chapter_id=0):
         book_id = chapter_id.book_id
-        if chapter_id.create_id == request.env.user:
+        if chapter_id.create_id == request.env.user or request.env.user in chapter_id.bible_id.team_ids:
             seq = chapter_id.sequence
             next_chapters = request.env['openbiblica.chapter'].search(
                 [('book_id', '=', book_id.id), ('sequence', '>', seq)])
@@ -430,7 +430,7 @@ class WebsiteBiblica(http.Controller):
         user_id = request.env.user
         chapter_id = request.env['openbiblica.chapter'].sudo().search([("id", "=", kwargs.get('chapter_id'))])
         seq = len(chapter_id.verse_ids) + 1
-        if chapter_id.create_id == user_id:
+        if chapter_id.create_id == user_id or user_id in chapter_id.bible_id.team_ids:
             verse_id = request.env['openbiblica.verse'].sudo().create({
                 'content': kwargs.get('content'),
                 'chapter': kwargs.get('chapter'),
@@ -446,7 +446,7 @@ class WebsiteBiblica(http.Controller):
     @http.route(['/up/verse/<model("openbiblica.verse"):verse_id>'], type='http', auth="user", website=True)
     def up_verse(self, verse_id=0):
         chapter_id = verse_id.chapter_id
-        if verse_id.create_id == request.env.user:
+        if verse_id.create_id == request.env.user or request.env.user in verse_id.bible_id.team_ids:
             if verse_id.sequence != 1:
                 seq = verse_id.sequence
                 pseq = seq - 1
@@ -458,7 +458,7 @@ class WebsiteBiblica(http.Controller):
     @http.route(['/down/verse/<model("openbiblica.verse"):verse_id>'], type='http', auth="user", website=True)
     def down_verse(self, verse_id=0):
         chapter_id = verse_id.chapter_id
-        if verse_id.create_id == request.env.user:
+        if verse_id.create_id == request.env.user or request.env.user in verse_id.bible_id.team_ids:
             if verse_id.sequence != len(chapter_id.verse_ids):
                 seq = verse_id.sequence
                 pseq = seq + 1
@@ -470,7 +470,7 @@ class WebsiteBiblica(http.Controller):
     @http.route(['/edit/verse'], type='http', auth="user", website=True)
     def edit_verse(self, **kwargs):
         verse_id = request.env['openbiblica.verse'].sudo().search([('id', '=', kwargs.get('verse_id'))])
-        if verse_id.create_id == request.env.user:
+        if verse_id.create_id == request.env.user or request.env.user in verse_id.bible_id.team_ids:
             verse_id.update({
                 'content': kwargs.get('content'),
                 'chapter': kwargs.get('chapter'),
@@ -483,7 +483,7 @@ class WebsiteBiblica(http.Controller):
     @http.route(['/remove/verse/<model("openbiblica.verse"):verse_id>'], type='http', auth="user", website=True)
     def remove_verse(self, verse_id=0):
         chapter_id = verse_id.chapter_id
-        if verse_id.create_id == request.env.user:
+        if verse_id.create_id == request.env.user or request.env.user in verse_id.bible_id.team_ids:
             seq = verse_id.sequence
             next_verses = request.env['openbiblica.verse'].search([('chapter_id', '=', chapter_id.id), ('sequence', '>', seq)])
             for verse in next_verses:
@@ -625,3 +625,22 @@ class WebsiteBiblica(http.Controller):
             's_lang': s_lang,
         })
         return request.render("openbiblica.view_search", values)
+
+    @http.route(['/add/bibleteam'], type='http', auth="user", website=True)
+    def add_bibleteam(self, **kwargs):
+        bible_id = request.env['openbiblica.bible'].sudo().search([('id', '=', kwargs.get('bible_id'))])
+        if bible_id.create_id == request.env.user:
+            team_id = request.env['res.users'].sudo().search([('email', '=', kwargs.get('email'))])
+            if team_id:
+                bible_id.update(
+                    {'team_ids': [(4, team_id.id)]}
+                )
+        return request.redirect(request.httprequest.referrer)
+
+    @http.route(['/remove/bibleteam/<model("openbiblica.bible"):bible_id>/<model("res.users"):team_id>'], type='http', auth="user", website=True)
+    def remove_bibleteam(self, bible_id=0, team_id=0):
+        if bible_id.create_id == request.env.user:
+            bible_id.update(
+                {'team_ids': [(3, team_id.id)]}
+            )
+        return request.redirect(request.httprequest.referrer)
