@@ -132,9 +132,20 @@
                 <tr t-if="user_id.my_bible_ids" t-foreach="user_id.my_bible_ids" t-as="bible_id">
                     <td>
                         <a t-attf-href="/bible/#{slug(bible_id)}">
-                            <h4 t-esc="bible_id.name"/>
+                            <h4>
+                                <span t-esc="bible_id.name"/> (As Owner)
+                            </h4>
                         </a>
                         <a role="button" t-attf-href="/remove/bible/#{slug(bible_id)}" class="btn btn-sm btn-danger">Remove this project</a>
+                    </td>
+                </tr>
+                <tr t-if="user_id.bible_team_ids" t-foreach="user_id.bible_team_ids" t-as="bible_id">
+                    <td>
+                        <a t-attf-href="/bible/#{slug(bible_id)}">
+                            <h4>
+                                <span t-esc="bible_id.name"/> (As Team Member)
+                            </h4>
+                        </a>
                     </td>
                 </tr>
             </table>
@@ -146,9 +157,20 @@
                 <tr t-if="user_id.my_dictionary_ids" t-foreach="user_id.my_dictionary_ids" t-as="dict_id">
                     <td>
                         <a t-attf-href="/dictionary/#{slug(dict_id)}">
-                            <h4 t-esc="dict_id.name"/>
+                            <h4>
+                                <span t-esc="dict_id.name"/> (As Owner)
+                            </h4>
                         </a>
                         <a role="button" t-attf-href="/remove/dictionary/#{slug(dict_id)}" class="btn btn-sm btn-danger">Remove this project</a>
+                    </td>
+                </tr>
+                <tr t-if="user_id.dictionary_team_ids" t-foreach="user_id.dictionary_team_ids" t-as="dict_id">
+                    <td>
+                        <a t-attf-href="/dictionary/#{slug(dict_id)}">
+                            <h4>
+                                <span t-esc="dict_id.name"/> (As Team Member)
+                            </h4>
+                        </a>
                     </td>
                 </tr>
             </table>

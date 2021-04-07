@@ -84,7 +84,7 @@ class WebsiteBiblicaAjax(http.Controller):
             return
         user_id = request.env.user
         book_id = request.env['openbiblica.book'].sudo().search([("id", "=", int(kwargs.get('book_id')))])
-        if book_id.create_id == user_id:
+        if book_id.create_id == user_id or user_id in book_id.bible_id.team_ids:
             seq = len(book_id.chapter_ids) + 1
             request.env['openbiblica.chapter'].sudo().create({
                 'book_id': book_id.id,

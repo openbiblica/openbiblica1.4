@@ -14,7 +14,7 @@ class WebsiteExport(http.Controller):
     @http.route('/export/usfm/<model("openbiblica.book"):book_id>', type='http', auth="user", website=True)
     def export_usfm(self, book_id=0):
         user_id = request.env.user
-        if book_id.create_id == user_id:
+        if book_id.create_id == user_id or user_id in book_id.bible_id.team_ids:
             if book_id.rest:
                 book_id.update({
                     'rest': None,
@@ -45,7 +45,7 @@ class WebsiteExport(http.Controller):
     @http.route('/export/continue/usfm/<model("openbiblica.chapter"):chapter_id>', type='http', auth="user", website=True)
     def cont_export_usfm(self, chapter_id=0):
         user_id = request.env.user
-        if chapter_id.create_id == user_id:
+        if chapter_id.create_id == user_id or user_id in chapter_id.bible_id.team_ids:
             book_id = chapter_id.book_id
             status, headers, content = request.env['ir.http'].sudo().binary_content(
                 model='openbiblica.book', id=book_id.id, field='rest')
@@ -75,7 +75,7 @@ class WebsiteExport(http.Controller):
             })
         return request.redirect('/book/%s' % slug(book_id))
 
-    @http.route('/html/<model("openbiblica.book"):book_id>', type='http', auth="public", website=True)
+    @http.route('/viewhtml/<model("openbiblica.book"):book_id>', type='http', auth="public", website=True, csrf=False)
     def view_html(self, book_id=0):
         values = {'book_id': book_id}
         return request.render("openbiblica.view_html", values)

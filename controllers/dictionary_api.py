@@ -121,7 +121,7 @@ class WebsiteDictionary(http.Controller):
     @http.route('/edit/dictionary', type='http', auth="user", website=True)
     def edit_dictionary(self, **kwargs):
         dictionary_id = request.env['openbiblica.dictionary'].sudo().search([('id', '=', int(kwargs.get('dictionary_id')))])
-        if dictionary_id.create_id == request.env.user:
+        if dictionary_id.create_id == request.env.user or request.env.user in dictionary_id.team_ids:
             values = {
                 'dictionary_id': dictionary_id,
                 'source_langs': request.env['openbiblica.lang'].sudo().search([('allow_dictionary', '=', True)]),
@@ -284,3 +284,21 @@ class WebsiteDictionary(http.Controller):
         })
         return request.render("openbiblica.view_meaning", values)
 
+    @http.route(['/add/dictionaryteam'], type='http', auth="user", website=True)
+    def add_dictionaryteam(self, **kwargs):
+        dictionary_id = request.env['openbiblica.dictionary'].sudo().search([('id', '=', kwargs.get('dictionary_id'))])
+        if dictionary_id.create_id == request.env.user:
+            team_id = request.env['res.users'].sudo().search([('email', '=', kwargs.get('email'))])
+            if team_id:
+                dictionary_id.update(
+                    {'team_ids': [(4, team_id.id)]}
+                )
+        return request.redirect(request.httprequest.referrer)
+
+    @http.route(['/remove/dictionaryteam/<model("openbiblica.dictionary"):dictionary_id>/<model("res.users"):team_id>'], type='http', auth="user", website=True)
+    def remove_dictionaryteam(self, dictionary_id=0, team_id=0):
+        if dictionary_id.create_id == request.env.user:
+            dictionary_id.update(
+                {'team_ids': [(3, team_id.id)]}
+            )
+        return request.redirect(request.httprequest.referrer)
