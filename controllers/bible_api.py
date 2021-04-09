@@ -584,10 +584,10 @@ class WebsiteBiblica(http.Controller):
             values['chapter_id'] = chapter_id.id
             domain += [('chapter_id', '=', chapter_id.id)]
         elif kwargs.get('book_id'):
-            content_id = request.env['openbiblica.book'].sudo().search([('id', '=', kwargs.get('book_id'))])
-            url_args['content_id'] = content_id.id
-            values['content_id'] = content_id.id
-            domain += [('content_id', '=', content_id.id)]
+            book_id = request.env['openbiblica.book'].sudo().search([('id', '=', kwargs.get('book_id'))])
+            url_args['book_id'] = book_id.id
+            values['book_id'] = book_id.id
+            domain += [('book_id', '=', book_id.id)]
         elif kwargs.get('bible_id'):
             bible_id = request.env['openbiblica.bible'].sudo().search([('id', '=', kwargs.get('bible_id'))])
             url_args['bible_id'] = bible_id.id
