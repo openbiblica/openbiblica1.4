@@ -7,7 +7,7 @@ import base64
 from odoo import http, SUPERUSER_ID
 from odoo.http import request
 
-
+# tambahan mario
 class WebsiteBiblicaAjax(http.Controller):
 
     @http.route(['/download/<int:book_id>'], type='http', auth="public", website=True)
