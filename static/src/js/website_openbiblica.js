@@ -13,10 +13,10 @@ odoo.define('openbiblica.website_openbiblica', function (require) {
 
     if ($('.o_bible_search').length) {
         var lang_options = $("select[name='langu_id']:enabled");
-        var bible_options = $("select[name='bible_id']:enabled");
-        var book_options = $("select[name='book_id']:enabled");
-        var chapter_options = $("select[name='chapter_id']:enabled");
-        var verse_options = $("select[name='verse_id']:enabled");
+        var bible_options = $("select[name='bib_id']:enabled");
+        var book_options = $("select[name='boo_id']:enabled");
+        var chapter_options = $("select[name='chap_id']:enabled");
+        var verse_options = $("select[name='ver_id']:enabled");
 
         $('.o_bible_search').ready(function(){
             bible_options.parent().hide();

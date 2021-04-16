@@ -21,35 +21,35 @@
         </xpath>
     </template>
 
-    <template id="portal_search" inherit_id="portal.frontend_layout">
+    <template id="editor_mode" inherit_id="portal.frontend_layout">
+        <xpath expr="//t[@t-call='portal.user_dropdown']" position="before">
+            <div class="o_editor navbar">
+                <div id="source_menu" style="display:none; margin-right: 4px;">
+                    <div id="show_source_button" style="display:none;">
+                        <a href="#" name="show_source" id="show_source" class="btn btn-sm btn-primary">Show</a>
+                    </div>
+                    <div id="hide_source_button">
+                        <a href="#" name="hide_source" id="hide_source" class="btn btn-sm btn-warning">Hide</a>
+                    </div>
+                </div>
+                <div id="editor_menu" style="display:none; margin-right: 4px;">
+                    <div id="show_button">
+                        <a href="#" name="switch_show" id="show_button" class="btn btn-sm btn-danger">Show</a>
+                    </div>
+                    <div id="hide_button" style="display:none;">
+                        <a href="#" name="switch_hide" id="hide_button" class="btn btn-sm btn-primary">Hide</a>
+                    </div>
+                </div>
+                <div id="find_source" style="display:none; margin-right: 4px;"/>
+                <div id="remove_source" style="display:none; margin-right: 4px;"/>
+                <div id="translate_this" style="display:none; margin-right: 4px;"/>
+            </div>
+        </xpath>
         <xpath expr="//header" position="inside">
-            <nav class="navbar navbar-expand-sm navbar-light bg-light">
+            <nav class="navbar navbar-expand navbar-light bg-light">
                 <div class="container">
-                    <div class="o_editor divider navbar">
-                        <div id="source_menu" style="display:none; margin-right: 4px;">
-                            <div id="show_source_button" style="display:none;">
-                                <a href="#" name="show_source" id="show_source" class="btn btn-sm btn-primary">Show</a>
-                            </div>
-                            <div id="hide_source_button">
-                                <a href="#" name="hide_source" id="hide_source" class="btn btn-sm btn-warning">Hide</a>
-                            </div>
-                        </div>
-                        <div id="editor_menu" style="display:none; margin-right: 4px;">
-                            <div id="show_button">
-                                <a href="#" name="switch_show" id="show_button" class="btn btn-sm btn-danger">Show</a>
-                            </div>
-                            <div id="hide_button" style="display:none;">
-                                <a href="#" name="switch_hide" id="hide_button" class="btn btn-sm btn-primary">Hide</a>
-                            </div>
-                        </div>
-                        <div id="find_source" style="display:none; margin-right: 4px;"/>
-                        <div id="remove_source" style="display:none; margin-right: 4px;"/>
-                        <div id="translate_this" style="display:none; margin-right: 4px;"/>
-                    </div>
-                    <div>
-                        <tr t-call="openbiblica.search_bible"/>
-                        <tr t-call="openbiblica.search_dictionary"/>
-                    </div>
+                    <tr t-call="openbiblica.search_bible"/>
+                    <tr t-call="openbiblica.search_dictionary"/>
                 </div>
             </nav>
         </xpath>
@@ -65,22 +65,22 @@
                         </select>
                     </div></li>
                     <li><div style="margin-right: 4px;">
-                        <select name="bible_id" class="form-control">
+                        <select name="bib_id" class="form-control">
                             <option value="">Biblica...</option>
                         </select>
                     </div></li>
                     <li><div style="margin-right: 4px;">
-                        <select name="book_id" class="form-control">
+                        <select name="boo_id" class="form-control">
                             <option value="">Book...</option>
                         </select>
                     </div></li>
                     <li><div style="margin-right: 4px;">
-                        <select name="chapter_id" class="form-control">
+                        <select name="chap_id" class="form-control">
                             <option value="">Chapter...</option>
                         </select>
                     </div></li>
                     <li><div style="margin-right: 4px;">
-                        <select name="verse_id" class="form-control">
+                        <select name="ver_id" class="form-control">
                             <option value="">Verse...</option>
                         </select>
                     </div></li>

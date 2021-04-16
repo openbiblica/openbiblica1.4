@@ -547,21 +547,17 @@ class WebsiteBiblica(http.Controller):
         if not s_lang:
             s_lang = request.env['openbiblica.lang'].search([("name", "=", "English")]).id
 
-        if kwargs.get('verse_id'):
+        if kwargs.get('ver_id'):
             return request.redirect('/verse/%s' % slug(
-                request.env['openbiblica.verse'].sudo().search([('id', '=', kwargs.get('verse_id'))])))
+                request.env['openbiblica.verse'].sudo().search([('id', '=', kwargs.get('ver_id'))])))
 
         if not keyword:
-            if kwargs.get('chapter_id'):
-                return request.redirect('/chapter/%s' % slug(request.env['openbiblica.chapter'].sudo().search([('id', '=', kwargs.get('chapter_id'))])))
-            elif kwargs.get('book_id'):
-                return request.redirect('/book/%s' % slug(request.env['openbiblica.book'].sudo().search([('id', '=', kwargs.get('book_id'))])))
-            elif kwargs.get('bible_id'):
-                return request.redirect('/bible/%s' % slug(request.env['openbiblica.bible'].sudo().search([('id', '=', kwargs.get('bible_id'))])))
-            elif kwargs.get('language_id'):
-                return request.redirect('/language/%s' % slug(request.env['openbiblica.lang'].sudo().search([('id', '=', kwargs.get('language_id'))])))
-            elif kwargs.get('langu_id'):
-                return request.redirect('/language/%s' % slug(request.env['openbiblica.lang'].sudo().search([('id', '=', kwargs.get('language_id'))])))
+            if kwargs.get('chap_id'):
+                return request.redirect('/chapter/%s' % slug(request.env['openbiblica.chapter'].sudo().search([('id', '=', kwargs.get('chap_id'))])))
+            elif kwargs.get('boo_id'):
+                return request.redirect('/book/%s' % slug(request.env['openbiblica.book'].sudo().search([('id', '=', kwargs.get('boo_id'))])))
+            elif kwargs.get('bib_id'):
+                return request.redirect('/bible/%s' % slug(request.env['openbiblica.bible'].sudo().search([('id', '=', kwargs.get('bib_id'))])))
             else:
                 return request.redirect(request.httprequest.referrer)
 
@@ -578,30 +574,28 @@ class WebsiteBiblica(http.Controller):
         for srch in keyword.split(" "):
             domain += [('content', 'ilike', srch)]
 
-        if kwargs.get('chapter_id'):
-            chapter_id = request.env['openbiblica.chapter'].sudo().search([('id', '=', kwargs.get('chapter_id'))])
+        if kwargs.get('chap_id'):
+            chapter_id = request.env['openbiblica.chapter'].sudo().search([('id', '=', kwargs.get('chap_id'))])
             url_args['chapter_id'] = chapter_id.id
-            values['chapter_id'] = chapter_id.id
+            values['chapter_id'] = chapter_id
+            values['book_id'] = chapter_id.book_id
+            values['bible_id'] = chapter_id.bible_id
             domain += [('chapter_id', '=', chapter_id.id)]
-        elif kwargs.get('book_id'):
-            book_id = request.env['openbiblica.book'].sudo().search([('id', '=', kwargs.get('book_id'))])
+        elif kwargs.get('boo_id'):
+            book_id = request.env['openbiblica.book'].sudo().search([('id', '=', kwargs.get('boo_id'))])
             url_args['book_id'] = book_id.id
-            values['book_id'] = book_id.id
+            values['book_id'] = book_id
+            values['bible_id'] = chapter_id.bible_id
             domain += [('book_id', '=', book_id.id)]
-        elif kwargs.get('bible_id'):
-            bible_id = request.env['openbiblica.bible'].sudo().search([('id', '=', kwargs.get('bible_id'))])
+        elif kwargs.get('bib_id'):
+            bible_id = request.env['openbiblica.bible'].sudo().search([('id', '=', kwargs.get('bib_id'))])
             url_args['bible_id'] = bible_id.id
-            values['bible_id'] = bible_id.id
+            values['bible_id'] = bible_id
             domain += [('bible_id', '=', bible_id.id)]
-        elif kwargs.get('language_id'):
-            lang_id = request.env['openbiblica.lang'].sudo().search([('id', '=', kwargs.get('language_id'))])
-            url_args['lang_id'] = lang_id.id
-            values['lang_id'] = lang_id.id
-            domain += [('lang_id', '=', lang_id.id)]
         elif kwargs.get('langu_id'):
             lang_id = request.env['openbiblica.lang'].sudo().search([('id', '=', kwargs.get('langu_id'))])
             url_args['lang_id'] = lang_id.id
-            values['lang_id'] = lang_id.id
+            values['lang_id'] = lang_id
             domain += [('lang_id', '=', lang_id.id)]
 
         total = verses.search_count(domain)

@@ -257,7 +257,7 @@
                     <div class="col-lg-12 pt16 pb16" style="text-align: center;">
                         <h4><font style="font-size: 62px;">
                             <p t-esc='keyword'/>
-                            in Bible <span t-if="bible_id" t-esc="bible_id.name"/>
+                            in Bible <span t-if="bible_id" t-esc="bible_id.name"/> <span t-if="book_id" t-esc="book_id.name"/> <span t-if="chapter_id" t-esc="chapter_id.name"/>
                         </font></h4>
                     </div>
                 </div>
